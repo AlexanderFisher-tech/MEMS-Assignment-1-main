@@ -9,7 +9,7 @@
 | Data | EF Core 10 Code-First, SQLite, ASP.NET Core Identity |
 | Auth | JWT Bearer (HMAC-SHA256), 7-day tokens |
 | Docs UI | Swagger at `/swagger` (the site root `/` redirects there) |
-| Azure API URL | `https://<your-app-name>.azurewebsites.net` ← fill in after deploying (section 5) |
+| Azure API URL | https://mems-api-afisher-ane9a7cmfpb9b9at.canadacentral-01.azurewebsites.net (Swagger: `/swagger`) |
 | GitHub repository | `https://github.com/AlexanderFisher-tech/MEMS-Assignment-1-main` |
 
 ### Why a separate project?
@@ -30,42 +30,46 @@ Differences from the MVC data, which follow the COMP4977 spec:
 ## 1. Architecture
 
 ```mermaid
-flowchart LR
-    subgraph iOS["iPhone — Municipal Elections Companion (SwiftUI, MVVM)"]
-        V[Views<br/>Login · Register · Municipalities<br/>Directory · Details · Voting Guide · Profile]
-        VM[ViewModels<br/>@Observable / async-await]
-        S[APIService<br/>URLSession + Codable]
-        K[(Keychain<br/>JWT token)]
-        V --> VM --> S
-        S <--> K
+flowchart TB
+    subgraph iOS["iOS app (SwiftUI · MVVM)"]
+        direction LR
+        V["Views<br/>Login · Register · Municipalities<br/>Directory · Details · Voting Guide · Profile"] --> VM["ViewModels<br/>async/await"] --> S["APIService<br/>URLSession · Codable"]
+        S <--> K[("Keychain<br/>JWT token")]
     end
 
-    subgraph Azure["Azure App Service (Linux, .NET 10)"]
+    S ==>|"HTTPS · JSON (camelCase) · Authorization: Bearer &lt;jwt&gt;"| P
+
+    subgraph Azure["Azure App Service · Linux · .NET 10"]
         direction TB
-        MW[Middleware<br/>ForwardedHeaders · StaticFiles · CORS<br/>JWT Authentication · Authorization]
-        subgraph Controllers
-            AC[AuthController<br/>/api/auth]
-            BC[Municipalities / Positions /<br/>Candidates controllers]
-            SC[SavedCandidatesController<br/>/api/savedcandidates 🔒]
+        P["ASP.NET Core pipeline<br/>Forwarded headers · CORS · JWT Bearer authentication"]
+        subgraph Controllers["Controllers (/api)"]
+            direction LR
+            AC["AuthController<br/>register · login"]
+            BC["Municipalities · Positions · Candidates<br/>public, read-only"]
+            SC["SavedCandidatesController<br/>voting guide (JWT required)"]
         end
-        SV[Services<br/>TokenService · DtoMapper]
-        ID[ASP.NET Core Identity<br/>UserManager]
-        EF[EF Core ApiDbContext<br/>auto-migrate + seed on startup]
-        DB[(SQLite<br/>/home/data/mems-api/mems-api.db)]
-        IMG[/wwwroot/images<br/>portraits + logos/]
-        SW[Swagger UI /swagger]
-        MW --> Controllers
-        AC --> ID --> EF
-        AC --> SV
-        BC --> SV
-        SC --> SV
+        subgraph Services["Services"]
+            direction LR
+            ID["ASP.NET Core Identity<br/>UserManager · password hashing"]
+            TS["TokenService<br/>signs JWTs"]
+            DM["DtoMapper<br/>flat DTOs · absolute image URLs"]
+        end
+        EF["Entity Framework Core · ApiDbContext<br/>auto-migrate + seed on startup"]
+        DB[("SQLite database<br/>/home/data/mems-api/mems-api.db")]
+        ST["Static files: /images/demo-candidates, /images/logos<br/>(loaded by SwiftUI AsyncImage)"]
+        SW["Swagger UI<br/>/swagger"]
+        P --> Controllers
+        P --> ST
+        P --> SW
+        AC --> ID
+        AC --> TS
+        BC --> DM
+        SC --> DM
+        ID --> EF
         BC --> EF
         SC --> EF
         EF --> DB
     end
-
-    S -- "HTTPS JSON (camelCase)<br/>Authorization: Bearer &lt;jwt&gt;" --> MW
-    V -- "AsyncImage loads absolute photoUrl / logoUrl" --> IMG
 ```
 
 ### Login and voting-guide flow
