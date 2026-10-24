@@ -2,6 +2,8 @@
 
 COMP4976 Assignment 1. ASP.NET Core MVC on .NET 10, EF Core Code First, SQLite, Identity, and local Bootstrap assets. Implements the municipal election directory, scoped administration, and anonymous printable voting guides. Seed candidates are fictional.
 
+> **COMP4977 Web API (Part 1):** the JWT-secured JSON API for the iOS app lives in `src/Mems.Api` (tests in `tests/Mems.Api.Tests`). Run it with `dotnet run --project src/Mems.Api --launch-profile http` (Swagger at http://localhost:5080/swagger) and deploy it with `./scripts/deploy-api-azure.sh <app-name>`. See [PART1_DOCUMENTATION.md](PART1_DOCUMENTATION.md) for the architecture, ERD, endpoint contracts, and Azure steps.
+
 ## Run locally (PowerShell, from this folder)
 
 ```powershell
