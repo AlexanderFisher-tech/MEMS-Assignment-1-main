@@ -1,0 +1,21 @@
+@model Municipality
+@*
+ * Project: Municipal Elections Management System (MEMS)
+ * Course: COMP4976
+ * Authors: Abdullah Rehan, Alex Fisher (project contributors)
+ * Description: Displays municipality information and its available elected positions.
+*@@{ ViewData["Title"] = Model.Name; }
+<a asp-action="Index">← All municipalities</a>
+<section class="hero mt-3">
+    @if (Model.LogoFileName is not null) { <img class="municipal-icon mb-3" src="/media/@Model.LogoFileName" alt="@Model.Name logo" /> }
+    <div class="eyebrow">@Model.Province</div><h1 class="mt-2">@Model.Name</h1>
+    <p class="prose">@Model.Description</p><span class="hero-meta">Election · @Model.ElectionDate.ToString("MMMM d, yyyy")</span>
+</section>
+<div class="section-heading"><h2>Elected positions</h2><a asp-controller="Directory" asp-action="Index" asp-route-municipalityId="@Model.MunicipalityId">All community candidates →</a></div>
+<div class="row g-4">
+@foreach (var position in Model.Positions.OrderBy(x => x.Name))
+{
+    <div class="col-md-4"><div class="card h-100"><div class="card-body"><span class="pill mb-3">@position.SeatsAvailable seat(s)</span><h3>@position.Name</h3><p class="text-secondary">@position.Candidates.Count candidates standing</p><a asp-controller="Directory" asp-action="Index" asp-route-municipalityId="@Model.MunicipalityId" asp-route-positionId="@position.PositionId">View candidates →</a></div></div></div>
+}
+</div>
+@if (Model.Positions.Count == 0) { <div class="empty">Positions will appear here when announced.</div> }

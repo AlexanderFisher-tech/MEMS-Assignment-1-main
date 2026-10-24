@@ -1,0 +1,12 @@
+@model List<Municipality>
+@*
+ * Project: Municipal Elections Management System (MEMS)
+ * Course: COMP4976
+ * Authors: Abdullah Rehan, Alex Fisher (project contributors)
+ * Description: Lists authorized municipalities and their management actions.
+*@@{ ViewData["Title"] = "Manage municipalities"; }
+<div class="section-heading mt-0"><h1 class="h2">Municipalities</h1><a class="btn btn-primary" asp-action="Create">+ Add municipality</a></div>
+<div class="table-responsive card"><table class="table mb-0"><thead><tr><th>Name</th><th>Province</th><th>Election date</th><th>Actions</th></tr></thead><tbody>
+@foreach (var m in Model) { <tr><td>@m.Name</td><td>@m.Province</td><td>@m.ElectionDate.ToString("MMM d, yyyy")</td><td><a asp-action="Details" asp-route-id="@m.MunicipalityId">Details</a> · <a asp-action="Edit" asp-route-id="@m.MunicipalityId">Edit</a> · <a asp-action="Delete" asp-route-id="@m.MunicipalityId">Delete</a></td></tr> }
+</tbody></table></div>
+@if (Model.Count == 0) { <p class="empty">No municipalities yet.</p> }

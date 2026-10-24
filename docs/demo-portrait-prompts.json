@@ -1,0 +1,102 @@
+﻿{
+  "generator": "Built-in image_gen tool",
+  "provenance": "Original synthetic fictional adults; no reference photographs or real politicians used. Optimized to 480x600 JPEG for local delivery.",
+  "prompts": [
+    {
+      "file": "demo-mara-ellison.jpg",
+      "prompt": "Create one professional studio head-and-shoulders portrait for a fictional municipal election demo candidate, Mara Ellison. Entirely invented person, not based on any actual person or politician. A woman approximately 48, light skin, shoulder-length auburn hair, navy blazer over ivory blouse, relaxed approachable expression, looking at camera. Natural realistic facial texture. Centered head with full hair and shoulders in frame, generous headroom, softly lit warm gray studio backdrop, balanced daylight, editorial corporate portrait, portrait aspect ratio 4:5. No text, no logos, no campaign materials, no flags. This is a synthetic character portrait for a clearly disclosed student demonstration website."
+    },
+    {
+      "file": "demo-owen-hartwell.jpg",
+      "prompt": "Create one professional studio head-and-shoulders portrait for a fictional municipal election demonstration character named Owen Hartwell. Entirely invented adult, not based on any actual person or politician. Appearance: man around 55, medium skin, short salt-and-pepper curls, rectangular spectacles, charcoal suit with blue open-collar shirt. Relaxed approachable expression, looking at camera, natural realistic skin texture. Centered full head and shoulders, generous headroom, softly lit warm gray studio backdrop, balanced daylight, realistic editorial corporate portrait, portrait aspect ratio 4:5. No text, logos, campaign materials or flags. The website clearly identifies this as synthetic fictional demonstration imagery."
+    },
+    {
+      "file": "demo-priya-nand.jpg",
+      "prompt": "Create one professional studio head-and-shoulders portrait for a fictional municipal election demonstration character named Priya Nand. Entirely invented adult, not based on any actual person or politician. Appearance: woman around 38, warm brown skin, dark wavy bob, forest green blazer, cream blouse. Relaxed approachable expression, looking at camera, natural realistic skin texture. Centered full head and shoulders, generous headroom, softly lit warm gray studio backdrop, balanced daylight, realistic editorial corporate portrait, portrait aspect ratio 4:5. No text, logos, campaign materials or flags. The website clearly identifies this as synthetic fictional demonstration imagery."
+    },
+    {
+      "file": "demo-eli-mercer.jpg",
+      "prompt": "Create one professional studio head-and-shoulders portrait for a fictional municipal election demonstration character named Eli Mercer. Entirely invented adult, not based on any actual person or politician. Appearance: man around 42, fair skin, short brown hair and neatly trimmed beard, navy jacket over light blue shirt. Relaxed approachable expression, looking at camera, natural realistic skin texture. Centered full head and shoulders, generous headroom, softly lit warm gray studio backdrop, balanced daylight, realistic editorial corporate portrait, portrait aspect ratio 4:5. No text, logos, campaign materials or flags. The website clearly identifies this as synthetic fictional demonstration imagery."
+    },
+    {
+      "file": "demo-nadia-farooq.jpg",
+      "prompt": "Create one professional studio head-and-shoulders portrait for a fictional municipal election demonstration character named Nadia Farooq. Entirely invented adult, not based on any actual person or politician. Appearance: woman around 46, olive skin, aubergine hijab, slate blazer, warm smile. Relaxed approachable expression, looking at camera, natural realistic skin texture. Centered full head and shoulders, generous headroom, softly lit warm gray studio backdrop, balanced daylight, realistic editorial corporate portrait, portrait aspect ratio 4:5. No text, logos, campaign materials or flags. The website clearly identifies this as synthetic fictional demonstration imagery."
+    },
+    {
+      "file": "demo-caleb-winslow.jpg",
+      "prompt": "Create one professional studio head-and-shoulders portrait for a fictional municipal election demonstration character named Caleb Winslow. Entirely invented adult, not based on any actual person or politician. Appearance: man around 60, dark brown skin, closely cropped gray hair, round spectacles, burgundy sweater and dark blazer. Relaxed approachable expression, looking at camera, natural realistic skin texture. Centered full head and shoulders, generous headroom, softly lit warm gray studio backdrop, balanced daylight, realistic editorial corporate portrait, portrait aspect ratio 4:5. No text, logos, campaign materials or flags. The website clearly identifies this as synthetic fictional demonstration imagery."
+    },
+    {
+      "file": "demo-simone-calder.jpg",
+      "prompt": "Create one professional studio head-and-shoulders portrait for a fictional municipal election demonstration character named Simone Calder. Entirely invented adult, not based on any actual person or politician. Appearance: woman around 52, medium tan skin, short silver pixie haircut, navy blazer over soft pink blouse. Relaxed approachable expression, looking at camera, natural realistic skin texture. Centered full head and shoulders, generous headroom, softly lit warm gray studio backdrop, balanced daylight, realistic editorial corporate portrait, portrait aspect ratio 4:5. No text, logos, campaign materials or flags. The website clearly identifies this as synthetic fictional demonstration imagery."
+    },
+    {
+      "file": "demo-daniel-hwang.jpg",
+      "prompt": "Create one professional studio head-and-shoulders portrait for a fictional municipal election demonstration character named Daniel Hwang. Entirely invented adult, not based on any actual person or politician. Appearance: man around 44, East Asian features, dark straight side-parted hair, charcoal jacket over white open-collar shirt. Relaxed approachable expression, looking at camera, natural realistic skin texture. Centered full head and shoulders, generous headroom, softly lit warm gray studio backdrop, balanced daylight, realistic editorial corporate portrait, portrait aspect ratio 4:5. No text, logos, campaign materials or flags. The website clearly identifies this as synthetic fictional demonstration imagery."
+    },
+    {
+      "file": "demo-aisha-moreno.jpg",
+      "prompt": "Create one professional studio head-and-shoulders portrait for a fictional municipal election demonstration character named Aisha Moreno. Entirely invented adult, not based on any actual person or politician. Appearance: woman around 35, medium brown skin, long dark curls pulled behind shoulders, muted blue blazer. Relaxed approachable expression, looking at camera, natural realistic skin texture. Centered full head and shoulders, generous headroom, softly lit warm gray studio backdrop, balanced daylight, realistic editorial corporate portrait, portrait aspect ratio 4:5. No text, logos, campaign materials or flags. The website clearly identifies this as synthetic fictional demonstration imagery."
+    },
+    {
+      "file": "demo-marcus-bellamy.jpg",
+      "prompt": "Create one professional studio head-and-shoulders portrait for a fictional municipal election demonstration character named Marcus Bellamy. Entirely invented adult, not based on any actual person or politician. Appearance: man around 49, dark skin, bald with neatly groomed beard, olive jacket over pale gray shirt. Relaxed approachable expression, looking at camera, natural realistic skin texture. Centered full head and shoulders, generous headroom, softly lit warm gray studio backdrop, balanced daylight, realistic editorial corporate portrait, portrait aspect ratio 4:5. No text, logos, campaign materials or flags. The website clearly identifies this as synthetic fictional demonstration imagery."
+    },
+    {
+      "file": "demo-leena-desai.jpg",
+      "prompt": "Create one professional studio head-and-shoulders portrait for a fictional municipal election demonstration character named Leena Desai. Entirely invented adult, not based on any actual person or politician. Appearance: woman around 57, brown skin, shoulder-length black hair streaked with gray, thin eyeglasses, burgundy blazer. Relaxed approachable expression, looking at camera, natural realistic skin texture. Centered full head and shoulders, generous headroom, softly lit warm gray studio backdrop, balanced daylight, realistic editorial corporate portrait, portrait aspect ratio 4:5. No text, logos, campaign materials or flags. The website clearly identifies this as synthetic fictional demonstration imagery."
+    },
+    {
+      "file": "demo-thomas-okafor.jpg",
+      "prompt": "Create one professional studio head-and-shoulders portrait for a fictional municipal election demonstration character named Thomas Okafor. Entirely invented adult, not based on any actual person or politician. Appearance: man around 40, dark brown skin, short natural hair, clean shaven, navy blazer and pale blue shirt. Relaxed approachable expression, looking at camera, natural realistic skin texture. Centered full head and shoulders, generous headroom, softly lit warm gray studio backdrop, balanced daylight, realistic editorial corporate portrait, portrait aspect ratio 4:5. No text, logos, campaign materials or flags. The website clearly identifies this as synthetic fictional demonstration imagery."
+    },
+    {
+      "file": "demo-vivian-kessler.jpg",
+      "prompt": "Create one professional studio head-and-shoulders portrait for a fictional municipal election demonstration character named Vivian Kessler. Entirely invented adult, not based on any actual person or politician. Appearance: woman around 58, fair skin, chin-length silver bob, black-rim eyeglasses, deep teal blazer. Relaxed approachable expression, looking at camera, natural realistic skin texture. Centered full head and shoulders, generous headroom, softly lit warm gray studio backdrop, balanced daylight, realistic editorial corporate portrait, portrait aspect ratio 4:5. No text, logos, campaign materials or flags. The website clearly identifies this as synthetic fictional demonstration imagery."
+    },
+    {
+      "file": "demo-adrian-solano.jpg",
+      "prompt": "Create one professional studio head-and-shoulders portrait for a fictional municipal election demonstration character named Adrian Solano. Entirely invented adult, not based on any actual person or politician. Appearance: man around 45, light olive skin, short wavy black hair, clean shaven, charcoal blazer and cream shirt. Relaxed approachable expression, looking at camera, natural realistic skin texture. Centered full head and shoulders, generous headroom, softly lit warm gray studio backdrop, balanced daylight, realistic editorial corporate portrait, portrait aspect ratio 4:5. No text, logos, campaign materials or flags. The website clearly identifies this as synthetic fictional demonstration imagery."
+    },
+    {
+      "file": "demo-mei-tanaka.jpg",
+      "prompt": "Create one professional studio head-and-shoulders portrait for a fictional municipal election demonstration character named Mei Tanaka. Entirely invented adult, not based on any actual person or politician. Appearance: woman around 34, East Asian features, shoulder-length straight dark hair, subtle bangs, cobalt blazer. Relaxed approachable expression, looking at camera, natural realistic skin texture. Centered full head and shoulders, generous headroom, softly lit warm gray studio backdrop, balanced daylight, realistic editorial corporate portrait, portrait aspect ratio 4:5. No text, logos, campaign materials or flags. The website clearly identifies this as synthetic fictional demonstration imagery."
+    },
+    {
+      "file": "demo-rafael-baptiste.jpg",
+      "prompt": "Create one professional studio head-and-shoulders portrait for a fictional municipal election demonstration character named Rafael Baptiste. Entirely invented adult, not based on any actual person or politician. Appearance: man around 54, medium dark skin, short graying curls, close trimmed beard, navy blazer over lavender shirt. Relaxed approachable expression, looking at camera, natural realistic skin texture. Centered full head and shoulders, generous headroom, softly lit warm gray studio backdrop, balanced daylight, realistic editorial corporate portrait, portrait aspect ratio 4:5. No text, logos, campaign materials or flags. The website clearly identifies this as synthetic fictional demonstration imagery."
+    },
+    {
+      "file": "demo-sara-benali.jpg",
+      "prompt": "Create one professional studio head-and-shoulders portrait for a fictional municipal election demonstration character named Sara Benali. Entirely invented adult, not based on any actual person or politician. Appearance: woman around 43, warm olive skin, long dark wavy hair tied low, rust-colored blazer over cream blouse. Relaxed approachable expression, looking at camera, natural realistic skin texture. Centered full head and shoulders, generous headroom, softly lit warm gray studio backdrop, balanced daylight, realistic editorial corporate portrait, portrait aspect ratio 4:5. No text, logos, campaign materials or flags. The website clearly identifies this as synthetic fictional demonstration imagery."
+    },
+    {
+      "file": "demo-patrick-rowden.jpg",
+      "prompt": "Professional studio portrait of an entirely invented adult male character, about 62 years old, fair skin with freckles, thinning sandy gray hair, round glasses, brown tweed jacket over a pale blue shirt. Friendly natural expression. Realistic photography style with soft daylight, neutral gray background. Head and shoulders centered, complete hair and shoulders visible, generous headroom. Vertical 4:5 composition. No words or logos. Synthetic fictional character illustration for a clearly labeled student demonstration application."
+    },
+    {
+      "file": "demo-amara-iqbal.jpg",
+      "prompt": "Create one professional studio head-and-shoulders portrait for a fictional municipal election demonstration character named Amara Iqbal. Entirely invented adult, not based on any actual person or politician. Appearance: woman around 47, medium brown skin, dark shoulder-length layered hair, charcoal blazer over deep blue blouse. Relaxed approachable expression, looking at camera, natural realistic skin texture. Centered full head and shoulders, generous headroom, softly lit warm gray studio backdrop, balanced daylight, realistic editorial corporate portrait, portrait aspect ratio 4:5. No text, logos, campaign materials or flags. The website clearly identifies this as synthetic fictional demonstration imagery."
+    },
+    {
+      "file": "demo-gregory-chao.jpg",
+      "prompt": "Create one professional studio head-and-shoulders portrait for a fictional municipal election demonstration character named Gregory Chao. Entirely invented adult, not based on any actual person or politician. Appearance: man around 59, East Asian features, short silver hair, thin eyeglasses, dark navy blazer and white shirt. Relaxed approachable expression, looking at camera, natural realistic skin texture. Centered full head and shoulders, generous headroom, softly lit warm gray studio backdrop, balanced daylight, realistic editorial corporate portrait, portrait aspect ratio 4:5. No text, logos, campaign materials or flags. The website clearly identifies this as synthetic fictional demonstration imagery."
+    },
+    {
+      "file": "demo-noor-whitmore.jpg",
+      "prompt": "Create one professional studio head-and-shoulders portrait for a fictional municipal election demonstration character named Noor Whitmore. Entirely invented adult, not based on any actual person or politician. Appearance: woman around 37, warm tan skin, short dark curly hair, dark green blazer over ivory blouse. Relaxed approachable expression, looking at camera, natural realistic skin texture. Centered full head and shoulders, generous headroom, softly lit warm gray studio backdrop, balanced daylight, realistic editorial corporate portrait, portrait aspect ratio 4:5. No text, logos, campaign materials or flags. The website clearly identifies this as synthetic fictional demonstration imagery."
+    },
+    {
+      "file": "demo-julian-mensah.jpg",
+      "prompt": "Create one professional studio head-and-shoulders portrait for a fictional municipal election demonstration character named Julian Mensah. Entirely invented adult, not based on any actual person or politician. Appearance: man around 33, dark brown skin, short natural curls, clean shaven, charcoal jacket with pale blue shirt. Relaxed approachable expression, looking at camera, natural realistic skin texture. Centered full head and shoulders, generous headroom, softly lit warm gray studio backdrop, balanced daylight, realistic editorial corporate portrait, portrait aspect ratio 4:5. No text, logos, campaign materials or flags. The website clearly identifies this as synthetic fictional demonstration imagery."
+    },
+    {
+      "file": "demo-elena-varga.jpg",
+      "prompt": "Create one professional studio head-and-shoulders portrait for a fictional municipal election demonstration character named Elena Varga. Entirely invented adult, not based on any actual person or politician. Appearance: woman around 51, light skin, shoulder-length chestnut hair, subtle eyeglasses, navy blazer over teal blouse. Relaxed approachable expression, looking at camera, natural realistic skin texture. Centered full head and shoulders, generous headroom, softly lit warm gray studio backdrop, balanced daylight, realistic editorial corporate portrait, portrait aspect ratio 4:5. No text, logos, campaign materials or flags. The website clearly identifies this as synthetic fictional demonstration imagery."
+    },
+    {
+      "file": "demo-hassan-beaumont.jpg",
+      "prompt": "Create one professional studio head-and-shoulders portrait for a fictional municipal election demonstration character named Hassan Beaumont. Entirely invented adult, not based on any actual person or politician. Appearance: man around 46, medium olive skin, dark wavy hair with gray at temples, trimmed beard, slate blue blazer. Relaxed approachable expression, looking at camera, natural realistic skin texture. Centered full head and shoulders, generous headroom, softly lit warm gray studio backdrop, balanced daylight, realistic editorial corporate portrait, portrait aspect ratio 4:5. No text, logos, campaign materials or flags. The website clearly identifies this as synthetic fictional demonstration imagery."
+    }
+  ]
+}

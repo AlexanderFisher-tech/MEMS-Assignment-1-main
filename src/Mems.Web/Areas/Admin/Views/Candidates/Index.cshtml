@@ -1,0 +1,13 @@
+@model List<Candidate>
+@*
+ * Project: Municipal Elections Management System (MEMS)
+ * Course: COMP4976
+ * Authors: Abdullah Rehan, Alex Fisher (project contributors)
+ * Description: Lists authorized candidates and their management actions.
+*@@{ ViewData["Title"] = "Manage candidates"; }
+<div class="section-heading mt-0"><h1 class="h2">Candidates</h1><a asp-action="Create" class="btn btn-primary">+ Add candidate</a></div>
+<form method="get" class="d-flex gap-2 mb-4"><label for="search" class="visually-hidden">Candidate name</label><input class="form-control" id="search" name="search" value="@ViewBag.Search" placeholder="Search by candidate name" maxlength="100" /><button class="btn btn-outline-primary">Search</button></form>
+<div class="table-responsive card"><table class="table mb-0"><thead><tr><th>Candidate</th><th>Municipality</th><th>Position</th><th>Actions</th></tr></thead><tbody>
+@foreach (var c in Model) { <tr><td>@c.Name</td><td>@c.Position.Municipality.Name</td><td>@c.Position.Name</td><td class="text-nowrap"><a asp-action="Details" asp-route-id="@c.CandidateId">Details</a> · <a asp-action="Edit" asp-route-id="@c.CandidateId">Edit</a> · <a asp-action="Delete" asp-route-id="@c.CandidateId">Delete</a></td></tr> }
+</tbody></table></div>
+@if (Model.Count == 0) { <p class="empty">No matching candidates in your scope.</p> }

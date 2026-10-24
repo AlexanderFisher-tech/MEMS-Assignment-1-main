@@ -1,0 +1,38 @@
+**/bin/
+**/obj/
+**/appsettings.Development.json
+**/appsettings.Production.json
+**/App_Data/
+**/*.db
+**/*.db-shm
+**/*.db-wal
+.vs/
+.vscode/
+.tools/
+TestResults/
+artifacts/
+node_modules/
+*.user
+*.pubxml.user
+*.pfx
+*.publishsettings
+.env
+
+
+# Local assignment reference files
+/CODEX_START_PROMPT.txt
+/START_HERE.txt
+/requirements/MEMS-Assignment-1.pdf
+/requirements/MEMS-Assignment-1-extracted.md
+
+# Additional local database formats
+**/*.sqlite
+**/*.sqlite3
+**/*.db-journal
+
+# Large ZIP archives in the project root
+/*.zip
+
+# Local agent-generated files
+/.codex/
+/.agents/

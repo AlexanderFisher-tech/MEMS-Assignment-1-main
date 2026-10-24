@@ -1,0 +1,12 @@
+@model List<Position>
+@*
+ * Project: Municipal Elections Management System (MEMS)
+ * Course: COMP4976
+ * Authors: Abdullah Rehan, Alex Fisher (project contributors)
+ * Description: Lists authorized positions and their management actions.
+*@@{ ViewData["Title"] = "Manage positions"; }
+<div class="section-heading mt-0"><h1 class="h2">Positions</h1><a asp-action="Create" class="btn btn-primary">+ Add position</a></div>
+<div class="table-responsive card"><table class="table mb-0"><thead><tr><th>Position</th><th>Municipality</th><th>Seats</th><th>Actions</th></tr></thead><tbody>
+@foreach (var p in Model) { <tr><td>@p.Name</td><td>@p.Municipality.Name</td><td>@p.SeatsAvailable</td><td><a asp-action="Details" asp-route-id="@p.PositionId">Details</a> · <a asp-action="Edit" asp-route-id="@p.PositionId">Edit</a> · <a asp-action="Delete" asp-route-id="@p.PositionId">Delete</a></td></tr> }
+</tbody></table></div>
+@if (Model.Count == 0) { <p class="empty">No positions in your scope.</p> }

@@ -1,0 +1,14 @@
+@model PositionForm
+@*
+ * Project: Municipal Elections Management System (MEMS)
+ * Course: COMP4976
+ * Authors: Abdullah Rehan, Alex Fisher (project contributors)
+ * Description: Renders the validated position create/edit form.
+*@@{ var creating = Model.PositionId == 0; ViewData["Title"] = creating ? "Add position" : "Edit position"; }
+<h1 class="h2 mb-4">@ViewData["Title"]</h1>
+<form asp-action="@(creating ? "Create" : "Edit")" asp-route-id="@(creating ? (int?)null : Model.PositionId)" method="post" class="panel" style="max-width:700px"><input type="hidden" asp-for="PositionId" /><div asp-validation-summary="All" role="alert"></div>
+<div class="mb-3"><label asp-for="Name" class="form-label"></label><input asp-for="Name" class="form-control" maxlength="100" /><span asp-validation-for="Name"></span></div>
+<div class="mb-3"><label asp-for="MunicipalityId" class="form-label"></label><select asp-for="MunicipalityId" asp-items="Model.Municipalities" class="form-select"><option value="">Choose a municipality</option></select><span asp-validation-for="MunicipalityId"></span></div>
+<div class="mb-4"><label asp-for="SeatsAvailable" class="form-label"></label><input asp-for="SeatsAvailable" class="form-control" min="1" max="100" /><span asp-validation-for="SeatsAvailable"></span></div>
+<button class="btn btn-primary">Save position</button><a class="btn btn-link" asp-action="Index">Cancel</a></form>
+@section Scripts { <partial name="_ValidationScriptsPartial" /> }

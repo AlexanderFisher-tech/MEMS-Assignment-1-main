@@ -1,0 +1,15 @@
+﻿@model ErrorViewModel
+@{
+    ViewData["Title"] = "Error";
+}
+
+<h1 class="h2">We couldn’t complete your request.</h1>
+<p>Please try again or return to the <a asp-area="" asp-controller="Municipalities" asp-action="Index">municipality directory</a>.</p>
+
+@if (Model.ShowRequestId)
+{
+    <p>
+        <strong>Request ID:</strong> <code>@Model.RequestId</code>
+    </p>
+}
+

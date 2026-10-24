@@ -1,0 +1,14 @@
+@model LoginForm
+@*
+ * Project: Municipal Elections Management System (MEMS)
+ * Course: COMP4976
+ * Authors: Abdullah Rehan, Alex Fisher (project contributors)
+ * Description: Renders the validated administrator sign-in form.
+*@@{ ViewData["Title"] = "Administrator sign in"; }
+<div class="mx-auto" style="max-width:460px"><div class="eyebrow mb-2">ADMIN WORKSPACE</div><h1 class="h2">Administrator sign in</h1><p class="text-secondary">Manage your community’s election information.</p>
+<form method="post" class="panel mt-4"><div asp-validation-summary="ModelOnly" role="alert"></div><input type="hidden" asp-for="ReturnUrl" />
+<div class="mb-3"><label asp-for="UserName" class="form-label"></label><input asp-for="UserName" class="form-control" autocomplete="username" /><span asp-validation-for="UserName"></span></div>
+<div class="mb-3"><label asp-for="Password" class="form-label"></label><input asp-for="Password" class="form-control" autocomplete="current-password" /><span asp-validation-for="Password"></span></div>
+<div class="form-check mb-4"><input asp-for="RememberMe" class="form-check-input" /><label asp-for="RememberMe" class="form-check-label"></label></div><button class="btn btn-primary w-100">Sign in</button></form>
+<p class="small mt-3">Public browsing and voting guides do not require an account.</p></div>
+@section Scripts { <partial name="_ValidationScriptsPartial" /> }

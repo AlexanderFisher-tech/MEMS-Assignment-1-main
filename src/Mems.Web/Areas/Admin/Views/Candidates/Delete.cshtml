@@ -1,0 +1,8 @@
+@model Candidate
+@*
+ * Project: Municipal Elections Management System (MEMS)
+ * Course: COMP4976
+ * Authors: Abdullah Rehan, Alex Fisher (project contributors)
+ * Description: Confirms deletion of an authorized candidate record.
+*@@{ ViewData["Title"] = "Delete candidate"; }
+<h1 class="h2">Delete @Model.Name?</h1><div class="panel"><p>@Model.Position.Name · @Model.Position.Municipality.Name</p><p>This removes the candidate from the directory and from voting guides when they are next opened.</p><form method="post" asp-action="Delete" asp-route-id="@Model.CandidateId"><button class="btn btn-danger">Delete candidate</button><a asp-action="Index" class="btn btn-link">Cancel</a></form></div>

@@ -1,0 +1,94 @@
+// Run against the Development app at localhost:5069. Uses only its own temporary candidate.
+const fs = require('node:fs');
+const path = require('node:path');
+const assert = require('node:assert/strict');
+const { chromium } = require('../.tools/browser/node_modules/@playwright/test');
+
+(async () => {
+  const browserPath = process.env.MEMS_BROWSER_PATH || [
+    'C:/Program Files (x86)/Microsoft/Edge/Application/msedge.exe',
+    'C:/Program Files/Google/Chrome/Application/chrome.exe'
+  ].find(p => fs.existsSync(p));
+  const browser = await chromium.launch({ executablePath: browserPath, headless: true });
+  const output = path.resolve(__dirname, '../artifacts/browser');
+  fs.mkdirSync(output, { recursive: true });
+  const errors = [];
+  const context = await browser.newContext({ viewport: { width: 1440, height: 1000 } });
+  const page = await context.newPage();
+  page.setDefaultTimeout(15000);
+  page.setDefaultNavigationTimeout(15000);
+  page.on('pageerror', error => errors.push(error.message));
+  const url = process.env.MEMS_BASE_URL || 'http://localhost:5069';
+  const checks = [];
+  try {
+    await page.goto(url);
+    await page.getByRole('heading', { name: 'Your community. Your choice.' }).waitFor();
+    await page.screenshot({ path: path.join(output, 'municipalities-desktop.png'), fullPage: true });
+    checks.push('Desktop municipality directory rendered');
+    await page.getByRole('link', { name: 'Explore community' }).filter({ hasText: 'Explore community' }).first().click();
+    await page.getByRole('heading', { name: 'Elected positions' }).waitFor();
+    await page.goto(url + '/Directory');
+    await page.selectOption('#directory-municipality', { label: 'Pitt Meadows' });
+    await page.waitForURL(/municipalityId=/i);
+    await page.selectOption('#directory-position', { label: 'Mayor — Pitt Meadows' });
+    await page.getByRole('button', { name: 'Search', exact: true }).click();
+    await page.getByText('2 candidate(s) found').waitFor();
+    await page.getByRole('button', { name: '+ Add to guide', exact: true }).first().click();
+    await page.getByRole('link', { name: /My voting guide/ }).click();
+    await page.getByRole('heading', { name: 'Pitt Meadows', exact: true }).waitFor();
+    await page.emulateMedia({ media: 'print' });
+    assert.equal(await page.locator('header').isVisible(), false);
+    assert.equal(await page.locator('#print-guide').isVisible(), false);
+    await page.pdf({ path: path.join(output, 'voting-guide.pdf'), format: 'A4', printBackground: true });
+    await page.emulateMedia({ media: 'screen' });
+    checks.push('Anonymous selections, filters, and print CSS / PDF rendering');
+    await page.getByRole('button', { name: /^Remove / }).click();
+    await page.getByRole('heading', { name: 'Your guide is ready for your choices.' }).waitFor();
+    await page.goto(url + '/Directory');
+    await page.setViewportSize({ width: 390, height: 844 });
+    const overflow = await page.evaluate(() => document.documentElement.scrollWidth > window.innerWidth);
+    assert.equal(overflow, false, 'Public directory overflows the mobile viewport');
+    await page.screenshot({ path: path.join(output, 'candidates-mobile.png'), fullPage: true });
+    await page.getByRole('button', { name: 'Toggle navigation' }).click();
+    await page.getByRole('link', { name: 'Admin sign in', exact: true }).click();
+    checks.push('Mobile directory fits viewport and navigation works');
+    await page.setViewportSize({ width: 1440, height: 1000 });
+    await page.getByLabel('Username', { exact: true }).fill('pm');
+    await page.getByLabel('Password', { exact: true }).fill('P@$$w0rd');
+    await page.getByRole('button', { name: 'Sign in', exact: true }).click();
+    await page.getByRole('heading', { name: 'Welcome, pm.' }).waitFor();
+    await page.goto(url + '/Admin/Candidates/Create');
+    await page.getByRole('button', { name: 'Save candidate', exact: true }).click();
+    const invalidFields = await page.locator('.field-validation-error').count();
+    assert.ok(invalidFields > 0, 'Client-side validation did not show required errors');
+    await page.getByLabel('Municipality', { exact: true }).selectOption({ label: 'Pitt Meadows' });
+    assert.equal(await page.locator('#candidate-position option[data-municipality]').count(), 3);
+    const name = 'Browser check ' + Date.now();
+    await page.getByLabel('Name', { exact: true }).fill(name);
+    await page.getByLabel('Biography / profile', { exact: true }).fill('Temporary candidate created and removed by the browser verification script.');
+    await page.getByLabel('Position', { exact: true }).selectOption({ label: 'Councilor — Pitt Meadows' });
+    await page.getByRole('button', { name: 'Save candidate', exact: true }).click();
+    await page.waitForURL(/Admin\/Candidates$/);
+    const row = page.locator('tr').filter({ hasText: name });
+    await row.getByRole('link', { name: 'Details', exact: true }).click();
+    await page.getByRole('heading', { name, exact: true }).waitFor();
+    await page.getByRole('link', { name: 'Back to candidates', exact: true }).click();
+    await page.locator('tr').filter({ hasText: name }).getByRole('link', { name: 'Delete', exact: true }).click();
+    await page.getByRole('button', { name: 'Delete candidate', exact: true }).click();
+    await page.waitForURL(/Admin\/Candidates$/);
+    assert.equal(await page.locator('tr').filter({ hasText: name }).count(), 0);
+    await page.screenshot({ path: path.join(output, 'admin-candidates.png'), fullPage: true });
+    checks.push('Real pm sign-in, client validation, dependent position options, candidate create/details/delete');
+    await page.getByRole('button', { name: 'Sign out (pm)' }).click();
+    await page.goto(url + '/Account/Login');
+    await page.getByLabel('Username', { exact: true }).fill('super');
+    await page.getByLabel('Password', { exact: true }).fill('P@$$w0rd');
+    await page.getByRole('button', { name: 'Sign in', exact: true }).click();
+    await page.goto(url + '/Admin/Municipalities');
+    await page.getByRole('link', { name: '+ Add municipality', exact: true }).waitFor();
+    checks.push('Super Admin sign-in and municipality management screen');
+    assert.deepEqual(errors, [], 'Browser JavaScript errors');
+    fs.writeFileSync(path.join(output, 'results.json'), JSON.stringify({ checks, javascriptErrors: errors }, null, 2));
+    console.log(JSON.stringify({ passed: checks, artifacts: output }, null, 2));
+  } finally { await browser.close(); }
+})().catch(error => { console.error(error); process.exitCode = 1; });

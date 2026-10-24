@@ -1,0 +1,138 @@
+/*
+ * Project: Municipal Elections Management System (MEMS)
+ * Course: COMP4976
+ * Authors: Abdullah Rehan, Alex Fisher (project contributors)
+ * Description: Defines fictional sample candidates and their conservative one-time upgrade.
+ */
+using Mems.Web.Models;
+using Microsoft.EntityFrameworkCore;
+
+namespace Mems.Web.Data;
+
+/// <summary>Describes one fictional sample and its stable seed key and packaged portrait.</summary>
+public record DemoCandidate(string Key, string Municipality, string Position, string Name, string Biography)
+{
+    public string PhotoFileName => $"demo-{Key}.jpg";
+}
+
+/// <summary>Original fictional content. Keys and row order are stable for the conservative legacy upgrade.</summary>
+public static class DemoCandidates
+{
+    public const string Disclaimer = "Fictional demonstration candidate. This biography is invented for a student project and does not describe a real person or an actual election campaign.";
+    public static IReadOnlyList<DemoCandidate> All { get; } = Array.AsReadOnly(new[] {
+        new DemoCandidate("mara-ellison", "Pitt Meadows", "Mayor", "Mara Ellison", """
+            Mara Ellison is a fictional community planning consultant who has spent her imagined career helping small communities explain complex projects in plain language. In this demonstration campaign for mayor of Pitt Meadows, she emphasizes careful infrastructure budgeting, protection of agricultural land, and dependable connections between neighbourhoods and local services. Her proposed approach includes public project timelines, accessible budget summaries, and regular conversations with residents before major spending decisions. Mara also highlights emergency preparedness and coordination with neighbouring communities. Away from her fictional professional work, she enjoys gardening, cycling on local paths, and organizing neighbourhood book exchanges. Her profile illustrates how a mayoral candidate might connect long-term planning with everyday municipal responsibilities.
+            """),
+        new DemoCandidate("owen-hartwell", "Pitt Meadows", "Mayor", "Owen Hartwell", """
+            Owen Hartwell is an invented retired operations manager and volunteer workshop organizer standing for mayor in this Pitt Meadows demonstration election. His fictional experience centres on maintaining facilities, scheduling repairs, and making limited budgets understandable to the people who depend on them. He proposes prioritizing reliable roads, drainage maintenance, and practical emergency response planning while publishing clear explanations of municipal service costs. Owen would encourage small businesses and residents to help identify improvements to commercial streets and public spaces. He also advocates respectful council meetings with time for questions from the community. His interests include woodworking and walking along riverside trails, reflecting a practical, neighbourhood-focused perspective on local leadership.
+            """),
+        new DemoCandidate("priya-nand", "Pitt Meadows", "Councilor", "Priya Nand", """
+            Priya Nand is a fictional accessibility specialist and parent who is running for a council seat in the Pitt Meadows sample election. Her imagined work involves helping organizations make buildings, information, and services easier to use. She brings that perspective to safer pedestrian crossings, connected sidewalks, and recreation programs that welcome residents with different abilities and incomes. Priya proposes reviewing municipal forms and public meeting materials for clarity, alongside practical improvements to parks and community facilities. She supports gathering feedback from renters, seniors, young families, and local businesses before council sets service priorities. Outside her fictional work, she enjoys community gardening and hosting inclusive board-game evenings with neighbours.
+            """),
+        new DemoCandidate("eli-mercer", "Pitt Meadows", "Councilor", "Eli Mercer", """
+            Eli Mercer is an invented environmental technician and youth recreation volunteer seeking a council seat in this fictional Pitt Meadows election. His sample platform connects neighbourhood growth with the maintenance of drainage systems, green spaces, and routes used by people walking or cycling. He proposes a transparent schedule for reviewing park equipment, accessible trail entrances, and municipal tree care. Eli also wants council decisions to explain how projects will be maintained after construction, including their ongoing costs. He values opportunities for young residents to participate in local consultations without requiring formal presentations. In his fictional spare time, he repairs bicycles and helps organize outdoor activities that introduce families to responsible enjoyment of public spaces.
+            """),
+        new DemoCandidate("nadia-farooq", "Pitt Meadows", "School Trustee", "Nadia Farooq", """
+            Nadia Farooq is a fictional adult learning coordinator and school volunteer standing for school trustee in the Pitt Meadows demonstration election. Her imagined experience includes helping families navigate unfamiliar education systems and supporting learners with different language backgrounds. She emphasizes clear school board communication, inclusive learning environments, and careful scrutiny of education budgets. Nadia proposes listening sessions with parents, students, educators, and support staff before the board sets priorities. She recognizes that trustees govern and oversee the school district rather than direct individual classroom lessons. Her sample interests include student well-being, accessible family information, and responsible planning for school facilities. Outside this invented role, she enjoys reading groups and creating educational activities with neighbours.
+            """),
+        new DemoCandidate("caleb-winslow", "Pitt Meadows", "School Trustee", "Caleb Winslow", """
+            Caleb Winslow is an invented former library program manager who is seeking a school trustee position in the Pitt Meadows sample election. In his fictional career, he organized literacy activities, supervised community programs, and worked with families facing barriers to participation. His demonstration priorities include equitable access to learning resources, thoughtful facilities planning, and school board decisions that explain their financial consequences. Caleb supports student voice in consultations and regular public updates on district goals. He distinguishes the board's governance responsibilities from the daily professional work of teachers and principals. His fictional interests include local history, mentoring new volunteers, and developing reading circles that welcome students with a wide range of interests and abilities.
+            """),
+        new DemoCandidate("simone-calder", "Maple Ridge", "Mayor", "Simone Calder", """
+            Simone Calder is a fictional nonprofit director standing for mayor in this Maple Ridge demonstration election. Her imagined background combines managing community programs with bringing different organizations together around shared goals. She proposes linking housing and neighbourhood planning with realistic schedules for roads, recreation spaces, and municipal services. Simone emphasizes open explanations of capital projects, respectful collaboration with regional partners, and public engagement that reaches beyond people who already attend council meetings. Her sample approach includes checking whether proposed improvements remain affordable to operate over time. Outside her fictional professional life, she enjoys trail walks, cooking with friends, and coordinating volunteer teams. This profile presents an invented example of collaborative municipal leadership rather than a real campaign.
+            """),
+        new DemoCandidate("daniel-hwang", "Maple Ridge", "Mayor", "Daniel Hwang", """
+            Daniel Hwang is an invented civil infrastructure analyst and neighbourhood association volunteer seeking the mayor's office in the Maple Ridge sample election. His fictional experience involves evaluating maintenance plans and translating technical reports into understandable choices. He emphasizes reliable municipal infrastructure, accessible community services, and clear reporting on project schedules and costs. Daniel proposes regular reviews of how road improvements, new development, and recreation investments fit together. He also supports conversations with residents about practical ways to strengthen neighbourhood gathering places and local business areas. His imagined leadership style is measured and evidence-focused, with an interest in explaining trade-offs before decisions are made. In his spare time, he enjoys photography and volunteering at community repair events.
+            """),
+        new DemoCandidate("aisha-moreno", "Maple Ridge", "Councilor", "Aisha Moreno", """
+            Aisha Moreno is a fictional recreation program supervisor who is running for a council position in the Maple Ridge demonstration election. Her imagined work has focused on making activities accessible to families balancing different schedules, transportation needs, and budgets. She proposes reviewing park access, community facility booking, and the availability of low-cost recreation opportunities. Aisha also highlights neighbourhood consultation when council considers changes to public spaces or local streets. She would ask municipal staff to present service options with clear information about costs and likely benefits. Her fictional interests include youth participation and welcoming spaces for residents who are new to the community. Outside this sample campaign, she enjoys swimming and organizing informal neighbourhood art activities.
+            """),
+        new DemoCandidate("marcus-bellamy", "Maple Ridge", "Councilor", "Marcus Bellamy", """
+            Marcus Bellamy is an invented small business adviser and volunteer coach seeking a council seat in this fictional Maple Ridge election. His sample background centres on helping organizations plan cash flow, maintain facilities, and communicate with customers. He brings that perspective to transparent municipal purchasing, predictable permit information, and public spaces that support neighbourhood businesses. Marcus proposes examining the long-term maintenance costs of new amenities before approving them. He also supports safer walking connections between homes, shops, and recreation areas, with consultation from residents who use those routes daily. His fictional community activities include coaching recreational sport and helping new entrepreneurs prepare realistic plans. The biography illustrates a practical council perspective without representing any actual person's positions.
+            """),
+        new DemoCandidate("leena-desai", "Maple Ridge", "School Trustee", "Leena Desai", """
+            Leena Desai is a fictional family support coordinator standing for school trustee in the Maple Ridge sample election. Her imagined career involves connecting families with information, helping them prepare questions, and ensuring that important decisions are explained clearly. She proposes school board priorities that support inclusive learning, student well-being, and thoughtful use of limited education funds. Leena would encourage accessible consultations with students, families, educators, and support staff, including options for people unable to attend evening meetings. She understands that trustees set district direction and oversee budgets while school professionals manage teaching and daily operations. Her fictional interests include language learning, community cooking activities, and building welcoming relationships between schools and the families they serve.
+            """),
+        new DemoCandidate("thomas-okafor", "Maple Ridge", "School Trustee", "Thomas Okafor", """
+            Thomas Okafor is an invented accountant and youth mentoring volunteer seeking a school trustee position in the Maple Ridge demonstration election. His fictional experience includes reviewing budgets and helping young people explore education and employment pathways. He emphasizes understandable school district financial reports, equitable access to learning opportunities, and careful planning for facilities and technology replacement. Thomas proposes asking how each major board decision supports student needs over several years, rather than focusing only on its immediate cost. He supports respectful collaboration with educators and families and recognizes the boundary between trustee governance and classroom instruction. Outside this fictional role, he enjoys running, community music events, and helping students practise presentations in supportive volunteer workshops.
+            """),
+        new DemoCandidate("vivian-kessler", "Burnaby", "Mayor", "Vivian Kessler", """
+            Vivian Kessler is a fictional urban policy researcher and volunteer board chair standing for mayor in the Burnaby demonstration election. Her imagined work examines how cities coordinate housing, public facilities, and infrastructure as neighbourhoods change. She proposes clear reporting on municipal projects, accessible consultation, and careful attention to the services required by a growing population. Vivian emphasizes working with regional partners on transportation while keeping council accountable for responsibilities within municipal authority. Her sample priorities include welcoming public spaces, well-maintained community facilities, and transparent explanations of budget choices. Outside her fictional professional life, she enjoys photography, swimming, and organizing neighbourhood discussion groups where residents can ask questions without needing technical planning knowledge.
+            """),
+        new DemoCandidate("adrian-solano", "Burnaby", "Mayor", "Adrian Solano", """
+            Adrian Solano is an invented community enterprise manager seeking the mayor's office in this fictional Burnaby election. His sample background combines organizational budgeting, staff supervision, and partnerships between local services. He proposes a practical review of municipal service delivery, with plain-language information about costs, waiting times, and planned improvements. Adrian also emphasizes balancing new development with reliable infrastructure and accessible recreation spaces. He would encourage public meetings that welcome different perspectives and explain which issues require cooperation with other levels of government. His fictional interests include supporting neighbourhood business areas and making community facilities easier to navigate. Away from work, he enjoys recreational cycling and volunteering at events that bring residents together across generations.
+            """),
+        new DemoCandidate("mei-tanaka", "Burnaby", "Councilor", "Mei Tanaka", """
+            Mei Tanaka is a fictional transportation planner and community arts volunteer running for a council position in the Burnaby sample election. Her imagined work focuses on how people reach everyday destinations, including those who walk, use mobility aids, cycle, or rely on transit. She proposes reviewing municipal street crossings, connections to public facilities, and the clarity of information about neighbourhood construction. Mei also supports accessible arts and recreation opportunities as part of healthy community life. She would ask council reports to explain how proposed projects affect different users and how their maintenance will be funded. Outside this fictional campaign, she enjoys drawing, visiting local parks, and helping volunteers organize small, inclusive neighbourhood exhibitions.
+            """),
+        new DemoCandidate("rafael-baptiste", "Burnaby", "Councilor", "Rafael Baptiste", """
+            Rafael Baptiste is an invented building maintenance coordinator and neighbourhood volunteer seeking a council seat in the Burnaby demonstration election. His fictional career involves planning repairs, improving accessibility, and explaining maintenance priorities to building users. He proposes bringing that practical perspective to municipal facilities, public washrooms, parks, and community gathering spaces. Rafael emphasizes transparent asset management so residents can understand why repairs are scheduled and what they will cost. He also supports engagement with renters, older residents, and people whose work hours make traditional council meetings difficult to attend. In his imagined spare time, he enjoys gardening and community theatre. His sample profile connects everyday service reliability with responsible local decision-making.
+            """),
+        new DemoCandidate("sara-benali", "Burnaby", "School Trustee", "Sara Benali", """
+            Sara Benali is a fictional youth services coordinator standing for school trustee in the Burnaby sample election. Her imagined experience includes supporting after-school programs and helping young people communicate their needs to community organizations. She emphasizes student well-being, inclusive participation, and understandable school board communication. Sara proposes seeking student and family feedback before setting district priorities and reviewing how resources are distributed across schools. She recognizes that trustees oversee policy and budgets rather than make individual classroom decisions. Her sample interests include transitions between school levels, accessible family information, and supportive connections between education and community services. Outside this fictional role, she enjoys hiking, reading, and volunteering with small creative writing groups for young people.
+            """),
+        new DemoCandidate("patrick-rowden", "Burnaby", "School Trustee", "Patrick Rowden", """
+            Patrick Rowden is an invented retired technical college administrator and literacy volunteer seeking a school trustee position in this fictional Burnaby election. His sample background includes facilities planning, program evaluation, and explaining institutional budgets. He proposes school board discussions that connect long-term spending decisions with student learning needs and equitable access to resources. Patrick supports listening to students, educators, families, and support staff before deciding which improvements should take priority. He distinguishes board oversight from the work of principals and teachers and values clear public reporting on district goals. His fictional interests include practical learning opportunities, accessible libraries, and intergenerational volunteering. Outside this demonstration campaign, he enjoys restoring furniture and participating in neighbourhood reading circles.
+            """),
+        new DemoCandidate("amara-iqbal", "Surrey", "Mayor", "Amara Iqbal", """
+            Amara Iqbal is a fictional community development director standing for mayor in the Surrey demonstration election. Her imagined career involves coordinating neighbourhood services and helping organizations plan for changing community needs. She proposes linking municipal growth decisions with realistic plans for roads, parks, recreation facilities, and other local infrastructure. Amara emphasizes understandable budgets and engagement that reflects the variety of neighbourhoods and schedules within a large city. She would encourage cooperation with regional and provincial partners while explaining which commitments council can deliver itself. Her fictional priorities include accessible public spaces and regular progress reports on major projects. Outside this sample campaign, she enjoys walking, community cooking events, and mentoring new volunteers.
+            """),
+        new DemoCandidate("gregory-chao", "Surrey", "Mayor", "Gregory Chao", """
+            Gregory Chao is an invented logistics manager and community foundation volunteer seeking the mayor's office in the Surrey sample election. His fictional background focuses on coordinating large projects, tracking costs, and making responsibilities clear across different teams. He proposes a transparent municipal project dashboard and regular reviews of infrastructure maintenance and service performance. Gregory also emphasizes public consultations that give residents useful information before asking for their views. He recognizes the need to coordinate with other governments on regional issues while remaining accountable for municipal decisions. His sample interests include dependable community facilities and practical support for neighbourhood business areas. Away from this invented professional life, he enjoys photography, badminton, and volunteering at local cultural events.
+            """),
+        new DemoCandidate("noor-whitmore", "Surrey", "Councilor", "Noor Whitmore", """
+            Noor Whitmore is a fictional landscape project coordinator and volunteer organizer running for a council position in the Surrey demonstration election. Her imagined work connects outdoor space design with the practical needs of the people who use it. She proposes attention to park entrances, shade, seating, and safe walking connections around municipal facilities. Noor supports community consultation that includes young people, seniors, and residents with accessibility needs before public spaces are redesigned. She would ask council to consider both construction costs and ongoing maintenance when choosing projects. Her fictional interests include neighbourhood stewardship and recreation opportunities that welcome different incomes and abilities. Outside this sample campaign, she enjoys gardening and helping residents organize small outdoor community activities.
+            """),
+        new DemoCandidate("julian-mensah", "Surrey", "Councilor", "Julian Mensah", """
+            Julian Mensah is an invented small business operations analyst and volunteer sports organizer seeking a council seat in the Surrey sample election. His fictional experience involves simplifying processes, reviewing service data, and helping teams explain their decisions. He proposes clear permit guidance, accessible municipal information, and public reporting that helps residents follow neighbourhood projects. Julian also emphasizes safe routes to recreation facilities and practical ways for young adults to participate in council consultations. He would evaluate proposed services by asking who benefits, what barriers remain, and how continuing costs will be funded. His imagined community activities include organizing low-cost sports sessions and mentoring new volunteers. This profile describes a fictional approach to local representation, not a real campaign.
+            """),
+        new DemoCandidate("elena-varga", "Surrey", "School Trustee", "Elena Varga", """
+            Elena Varga is a fictional educational program evaluator and family volunteer standing for school trustee in the Surrey demonstration election. Her imagined work examines whether programs reach the people they are intended to serve and whether their goals are clearly explained. She proposes school board priorities focused on inclusive learning, understandable financial reporting, and thoughtful facilities planning as student needs change. Elena supports hearing directly from families, students, educators, and support staff through several accessible consultation formats. She recognizes that trustees set district direction and oversee resources while school professionals manage instruction. Her fictional interests include student transitions, learning support, and communication with families new to the school system. Outside this sample role, she enjoys reading and community music activities.
+            """),
+        new DemoCandidate("hassan-beaumont", "Surrey", "School Trustee", "Hassan Beaumont", """
+            Hassan Beaumont is an invented community technology trainer and youth mentoring volunteer seeking a school trustee position in the Surrey sample election. His fictional experience involves helping learners develop confidence with digital tools and understand their education options. He emphasizes equitable access to learning resources, student well-being, and careful planning for technology and facility replacement. Hassan proposes clear explanations of major school board spending decisions and opportunities for students to contribute to district consultations. He understands that trustees govern the district rather than direct individual teachers or determine classroom lessons. His sample interests include practical learning pathways and accessible information for families. Away from this fictional campaign, he enjoys cycling and organizing supportive community skills workshops.
+            """)
+    });
+
+    public static bool IsPortrait(string name) => All.Any(x => x.PhotoFileName == name);
+
+    public static Candidate Create(DemoCandidate sample, int positionId) => new() {
+        DemoSeedKey = sample.Key, Name = sample.Name, Profile = sample.Biography,
+        PositionId = positionId, PhotoFileName = sample.PhotoFileName,
+        Website = "https://example.org", Email = "candidate@example.org"
+    };
+
+    public static string LegacyBiography(string position, string municipality) =>
+        $"Fictional demonstration candidate for {position} in {municipality}. Interested in thoughtful community planning, accessible services, and transparent local government. This profile is sample data, not an endorsement or a real election record.";
+
+    public static string LegacyName(int positionId, int slot) =>
+        new[] { "Alex Morgan", "Sam Chen", "Jordan Patel", "Taylor Wilson", "Casey Singh", "Robin Lee" }[(positionId + slot) % 6];
+
+    /// <summary>
+    /// Claim only original seed rows with the expected IDs, parents, and unchanged original content.
+    /// Never add rows to an existing database, replace uploaded photographs, or refresh claimed rows.
+    /// </summary>
+    public static async Task UpgradeLegacy(ApplicationDbContext db)
+    {
+        var candidates = await db.Candidates.Include(x => x.Position).ThenInclude(x => x.Municipality)
+            .Where(x => x.DemoSeedKey == null && x.CandidateId <= 24).ToListAsync();
+        var existingKeys = await db.Candidates.Where(x => x.DemoSeedKey != null).Select(x => x.DemoSeedKey).ToListAsync();
+        for (var i = 0; i < All.Count; i++)
+        {
+            var sample = All[i];
+            if (existingKeys.Contains(sample.Key)) continue;
+            var positionId = i / 2 + 1;
+            var candidate = candidates.SingleOrDefault(x => x.CandidateId == i + 1 && x.PositionId == positionId
+                && x.Position.MunicipalityId == i / 6 + 1 && x.Position.Name == sample.Position && x.Position.Municipality.Name == sample.Municipality
+                && x.Name == LegacyName(positionId, i % 2) && x.Profile == LegacyBiography(sample.Position, sample.Municipality)
+                && x.Email == "candidate@example.org" && x.Website == "https://example.org");
+            if (candidate is null) continue;
+            candidate.DemoSeedKey = sample.Key;
+            candidate.Name = sample.Name;
+            candidate.Profile = sample.Biography;
+            // A null photo can mean an administrator deliberately removed it; preserve that choice too.
+            if (candidate.PhotoFileName == "sample-avatar.svg") candidate.PhotoFileName = sample.PhotoFileName;
+        }
+        await db.SaveChangesAsync();
+    }
+}

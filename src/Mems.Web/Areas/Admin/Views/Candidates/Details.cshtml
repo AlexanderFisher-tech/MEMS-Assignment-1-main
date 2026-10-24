@@ -1,0 +1,9 @@
+@model Candidate
+@*
+ * Project: Municipal Elections Management System (MEMS)
+ * Course: COMP4976
+ * Authors: Abdullah Rehan, Alex Fisher (project contributors)
+ * Description: Displays details for an authorized candidate record.
+*@@{ ViewData["Title"] = Model.Name; }
+<div class="section-heading mt-0"><h1 class="h2">@Model.Name</h1><a class="btn btn-primary" asp-action="Edit" asp-route-id="@Model.CandidateId">Edit candidate</a></div>
+<div class="panel row g-4 mx-0"><div class="col-md-3"><img class="profile-photo" src="/media/@(Model.PhotoFileName ?? "sample-avatar.svg")" alt="Candidate photograph or placeholder" /></div><div class="col-md-9"><dl><dt>Municipality</dt><dd>@Model.Position.Municipality.Name</dd><dt>Position</dt><dd>@Model.Position.Name</dd><dt>Biography</dt><dd class="prose">@Model.Profile</dd><dt>Website</dt><dd>@Model.Website</dd><dt>Email</dt><dd>@Model.Email</dd><dt>Created (UTC)</dt><dd>@Model.DateCreated.ToString("yyyy-MM-dd HH:mm")</dd></dl><a asp-action="Index">Back to candidates</a></div></div>

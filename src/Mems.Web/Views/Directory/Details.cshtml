@@ -1,0 +1,18 @@
+@model Candidate
+@*
+ * Project: Municipal Elections Management System (MEMS)
+ * Course: COMP4976
+ * Authors: Abdullah Rehan, Alex Fisher (project contributors)
+ * Description: Displays a candidate biography, portrait, and fictional-sample disclosure.
+*@@{ ViewData["Title"] = Model.Name; }
+<a asp-action="Index" asp-route-municipalityId="@Model.Position.MunicipalityId">← Community candidates</a>
+<div class="row g-5 mt-1"><div class="col-md-4"><img class="profile-photo" src="/media/@(Model.PhotoFileName ?? "sample-avatar.svg")" alt="@(DemoCandidates.IsPortrait(Model.PhotoFileName ?? "") ? $"AI-generated portrait of fictional candidate {Model.Name}" : Model.PhotoFileName is null or "sample-avatar.svg" ? "Placeholder portrait" : $"Photograph of {Model.Name}")" width="480" height="600" /></div>
+<div class="col-md-8"><div class="eyebrow">@Model.Position.Municipality.Name</div><h1 class="mt-2">@Model.Name</h1><span class="pill">Candidate for @Model.Position.Name</span><p class="mt-3 text-secondary">Election · @Model.Position.Municipality.ElectionDate.ToString("MMMM d, yyyy")</p>
+<h2 class="mt-4">About the candidate</h2><p class="prose">@Model.Profile</p>
+@* Seed provenance controls the fictional-content disclosure, independently of an administrator replacing the portrait. *@@if (Model.DemoSeedKey is not null) { <p class="demo-notice small">@DemoCandidates.Disclaimer @if (DemoCandidates.IsPortrait(Model.PhotoFileName ?? "")) { <span>The portrait is AI-generated.</span> }</p> }
+@if (Model.Website is not null) { <p><a href="@Model.Website" target="_blank" rel="noopener noreferrer">Visit candidate website ↗</a></p> }
+@if (Model.Email is not null) { <p><a href="mailto:@Model.Email">@Model.Email</a></p> }
+@if (ViewBag.Selected == true) { <a class="btn btn-primary" asp-controller="Guide" asp-action="Index">View in your guide</a> }
+else { <form asp-controller="Guide" asp-action="Add" method="post"><input type="hidden" name="id" value="@Model.CandidateId" /><input type="hidden" name="returnUrl" value="@Context.Request.Path" /><button class="btn btn-primary">+ Add to my voting guide</button></form> }
+<p class="small text-secondary mt-3">Profile created @Model.DateCreated.ToString("MMMM d, yyyy") (UTC)</p>
+</div></div>

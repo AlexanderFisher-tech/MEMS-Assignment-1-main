@@ -1,0 +1,8 @@
+@model Municipality
+@*
+ * Project: Municipal Elections Management System (MEMS)
+ * Course: COMP4976
+ * Authors: Abdullah Rehan, Alex Fisher (project contributors)
+ * Description: Confirms deletion of an authorized municipality record.
+*@@{ ViewData["Title"] = "Delete municipality"; }
+<h1 class="h2">Delete @Model.Name?</h1><div class="panel"><div asp-validation-summary="All" role="alert"></div><p>Delete its positions and remove administrator memberships first. This municipality currently has @Model.Positions.Count position(s).</p><form method="post" asp-action="Delete" asp-route-id="@Model.MunicipalityId"><button class="btn btn-danger">Delete municipality</button><a asp-action="Index" class="btn btn-link">Cancel</a></form></div>

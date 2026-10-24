@@ -1,0 +1,11 @@
+@model DashboardViewModel
+@inject AdminScope Scope
+@*
+ * Project: Municipal Elections Management System (MEMS)
+ * Course: COMP4976
+ * Authors: Abdullah Rehan, Alex Fisher (project contributors)
+ * Description: Displays counts and management links for the current admin scope.
+*@@{ ViewData["Title"] = "Administration overview"; }
+<div class="eyebrow">ELECTION MANAGEMENT</div><h1 class="mt-2">Welcome, @User.Identity?.Name.</h1><p class="text-secondary">@(Scope.IsSuper ? "You have access to all municipalities." : "Your workspace includes only your assigned municipality data.")</p>
+<div class="row g-4 mt-2"><div class="col-md-4"><div class="card"><div class="card-body"><div class="eyebrow">MUNICIPALITIES</div><div class="stat">@Model.Municipalities</div><span class="text-secondary">Communities in your scope</span></div></div></div><div class="col-md-4"><div class="card"><div class="card-body"><div class="eyebrow">POSITIONS</div><div class="stat">@Model.Positions</div><a asp-controller="Positions" asp-action="Index">Manage positions →</a></div></div></div><div class="col-md-4"><div class="card"><div class="card-body"><div class="eyebrow">CANDIDATES</div><div class="stat">@Model.Candidates</div><a asp-controller="Candidates" asp-action="Index">Manage candidates →</a></div></div></div></div>
+<div class="panel mt-4"><h2 class="h4">Keep your community informed</h2><p class="mb-0">Add and update candidates, confirm available seats, and check the public directory after making changes.</p></div>

@@ -1,0 +1,8 @@
+@model Position
+@*
+ * Project: Municipal Elections Management System (MEMS)
+ * Course: COMP4976
+ * Authors: Abdullah Rehan, Alex Fisher (project contributors)
+ * Description: Confirms deletion of an authorized position record.
+*@@{ ViewData["Title"] = "Delete position"; }
+<h1 class="h2">Delete @Model.Name?</h1><div class="panel"><div asp-validation-summary="All" role="alert"></div><p>@Model.Municipality.Name · @Model.SeatsAvailable seat(s) · @Model.Candidates.Count candidate(s). Delete or reassign candidates before deleting this position.</p><form method="post" asp-action="Delete" asp-route-id="@Model.PositionId"><button class="btn btn-danger">Delete position</button><a asp-action="Index" class="btn btn-link">Cancel</a></form></div>

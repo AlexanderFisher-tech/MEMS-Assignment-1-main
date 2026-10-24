@@ -1,0 +1,16 @@
+@model MunicipalityForm
+@*
+ * Project: Municipal Elections Management System (MEMS)
+ * Course: COMP4976
+ * Authors: Abdullah Rehan, Alex Fisher (project contributors)
+ * Description: Renders the validated municipality create/edit form.
+*@@{ var creating = Model.MunicipalityId == 0; ViewData["Title"] = creating ? "Add municipality" : "Edit municipality"; }
+<h1 class="h2">@ViewData["Title"]</h1><p class="text-secondary">Every municipality gets a distinct administrator group.</p>
+<form asp-action="@(creating ? "Create" : "Edit")" asp-route-id="@(creating ? (int?)null : Model.MunicipalityId)" method="post" enctype="multipart/form-data" class="panel" style="max-width:800px">
+<input type="hidden" asp-for="MunicipalityId" /><div asp-validation-summary="All" role="alert"></div>
+<div class="mb-3"><label asp-for="Name" class="form-label"></label><input asp-for="Name" class="form-control" maxlength="100" /><span asp-validation-for="Name"></span></div>
+<div class="row"><div class="col-md-6 mb-3"><label asp-for="Province" class="form-label"></label><input asp-for="Province" class="form-control" maxlength="50" /><span asp-validation-for="Province"></span></div><div class="col-md-6 mb-3"><label asp-for="ElectionDate" class="form-label"></label><input asp-for="ElectionDate" type="date" class="form-control" /><span asp-validation-for="ElectionDate"></span></div></div>
+<div class="mb-3"><label asp-for="Description" class="form-label"></label><textarea asp-for="Description" class="form-control" rows="4" maxlength="2000"></textarea><span asp-validation-for="Description"></span></div>
+<partial name="_ImageInput" model="@(new ImageInputModel(Model.CurrentImage, "Municipality logo"))" />
+<button class="btn btn-primary">Save municipality</button><a class="btn btn-link" asp-action="Index">Cancel</a></form>
+@section Scripts { <partial name="_ValidationScriptsPartial" /> }

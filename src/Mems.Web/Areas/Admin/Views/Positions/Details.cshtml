@@ -1,0 +1,9 @@
+@model Position
+@*
+ * Project: Municipal Elections Management System (MEMS)
+ * Course: COMP4976
+ * Authors: Abdullah Rehan, Alex Fisher (project contributors)
+ * Description: Displays details for an authorized position record.
+*@@{ ViewData["Title"] = Model.Name; }
+<div class="section-heading mt-0"><h1 class="h2">@Model.Name</h1><a class="btn btn-primary" asp-action="Edit" asp-route-id="@Model.PositionId">Edit position</a></div>
+<div class="panel"><dl><dt>Municipality</dt><dd>@Model.Municipality.Name</dd><dt>Seats available</dt><dd>@Model.SeatsAvailable</dd><dt>Candidates</dt><dd>@Model.Candidates.Count</dd></dl><ul>@foreach (var c in Model.Candidates.OrderBy(x => x.Name)) { <li><a asp-controller="Candidates" asp-action="Details" asp-route-id="@c.CandidateId">@c.Name</a></li> }</ul><a asp-action="Index">Back to positions</a></div>

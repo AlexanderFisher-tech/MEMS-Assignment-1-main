@@ -1,0 +1,13 @@
+**/bin
+**/obj
+**/App_Data
+**/appsettings.Development.json
+**/appsettings.Production.json
+.git
+.tools
+artifacts
+node_modules
+**/*.db*
+**/*.pfx
+**/*.publishsettings
+.env

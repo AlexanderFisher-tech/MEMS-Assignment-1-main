@@ -1,0 +1,64 @@
+@using Mems.Web.Services
+@inject VotingSelection Selection
+@*
+ * Project: Municipal Elections Management System (MEMS)
+ * Course: COMP4976
+ * Authors: Abdullah Rehan, Alex Fisher (project contributors)
+ * Description: Provides shared navigation, notifications, and local client assets.
+*@<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] · Civic Guide</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+</head>
+<body>
+<a class="visually-hidden-focusable skip-link" href="#main">Skip to content</a>
+<header class="no-print">
+<nav class="navbar navbar-expand-lg bg-white border-bottom py-3" aria-label="Main navigation">
+<div class="container">
+    <a class="navbar-brand fw-bold" asp-area="" asp-controller="Municipalities" asp-action="Index"><span class="brand-mark">C</span> Civic Guide<span class="brand-sub"> / MEMS</span></a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navigation" aria-controls="navigation" aria-expanded="false" aria-label="Toggle navigation"><span class="navbar-toggler-icon"></span></button>
+    <div class="collapse navbar-collapse" id="navigation">
+        <ul class="navbar-nav me-auto ms-lg-4 gap-lg-3">
+            <li class="nav-item"><a class="nav-link" asp-area="" asp-controller="Municipalities" asp-action="Index">Municipalities</a></li>
+            <li class="nav-item"><a class="nav-link" asp-area="" asp-controller="Directory" asp-action="Index">Candidates</a></li>
+            <li class="nav-item"><a class="nav-link" asp-area="" asp-controller="Guide" asp-action="Index">My voting guide <span class="badge rounded-pill text-bg-light">@Selection.Read().Count</span></a></li>
+        </ul>
+@* Navigation visibility is for usability; controller authorization and AdminScope enforce access on the server. *@        @if (User.Identity?.IsAuthenticated == true)
+        {
+            <a class="btn btn-outline-primary me-2" asp-area="Admin" asp-controller="Dashboard" asp-action="Index">Administration</a>
+            <form asp-area="" asp-controller="Account" asp-action="Logout" method="post"><button class="btn btn-link" type="submit">Sign out (@User.Identity.Name)</button></form>
+        }
+        else { <a class="btn btn-outline-primary" asp-area="" asp-controller="Account" asp-action="Login">Admin sign in</a> }
+    </div>
+</div>
+</nav>
+</header>
+<main id="main" class="container py-4 py-md-5">
+    @if (ViewContext.RouteData.Values["area"]?.ToString() == "Admin")
+    {
+        <nav class="admin-nav no-print mb-4" aria-label="Administration">
+            <span class="eyebrow me-3">ADMIN WORKSPACE</span>
+            <a asp-area="Admin" asp-controller="Dashboard" asp-action="Index">Overview</a>
+            @if (User.IsInRole(AdminScope.SuperRole)) { <a asp-area="Admin" asp-controller="Municipalities" asp-action="Index">Municipalities</a> }
+            <a asp-area="Admin" asp-controller="Positions" asp-action="Index">Positions</a>
+            <a asp-area="Admin" asp-controller="Candidates" asp-action="Index">Candidates</a>
+            <a asp-area="" asp-controller="Account" asp-action="ChangePassword">Change password</a>
+        </nav>
+    }
+    @if (TempData["Notice"] is string notice) { <div class="alert alert-info no-print" role="status">@notice</div> }
+    @RenderBody()
+</main>
+<footer class="container footer py-4 mt-4 no-print d-flex flex-wrap justify-content-between gap-2">
+    <span class="fw-semibold">Civic Guide <span class="text-secondary fw-normal">— Municipal Elections Management System</span></span>
+    <span>COMP4976 · Student demonstration · Fictional candidate data</span>
+</footer>
+<script src="~/lib/jquery/dist/jquery.min.js"></script>
+<script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+<script src="~/js/site.js" asp-append-version="true"></script>
+@await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

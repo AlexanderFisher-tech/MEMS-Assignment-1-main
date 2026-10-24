@@ -1,0 +1,9 @@
+@model Municipality
+@*
+ * Project: Municipal Elections Management System (MEMS)
+ * Course: COMP4976
+ * Authors: Abdullah Rehan, Alex Fisher (project contributors)
+ * Description: Displays details for an authorized municipality record.
+*@@{ ViewData["Title"] = Model.Name; }
+<div class="section-heading mt-0"><h1 class="h2">@Model.Name</h1><a class="btn btn-primary" asp-action="Edit" asp-route-id="@Model.MunicipalityId">Edit municipality</a></div>
+<div class="panel">@if (Model.LogoFileName is not null) { <img class="municipal-icon mb-3" src="/media/@Model.LogoFileName" alt="@Model.Name logo" /> }<dl><dt>Province</dt><dd>@Model.Province</dd><dt>Election date</dt><dd>@Model.ElectionDate.ToString("MMMM d, yyyy")</dd><dt>Description</dt><dd class="prose">@Model.Description</dd><dt>Positions</dt><dd>@Model.Positions.Count</dd></dl><a asp-action="Index">Back to municipalities</a></div>

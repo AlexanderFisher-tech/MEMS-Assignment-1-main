@@ -1,0 +1,42 @@
+﻿@model List<Candidate>
+@*
+ * Project: Municipal Elections Management System (MEMS)
+ * Course: COMP4976
+ * Authors: Abdullah Rehan, Alex Fisher (project contributors)
+ * Description: Groups selected candidates for screen review and compact printing.
+*@@{ ViewData["Title"] = "My voting guide"; }
+<div class="voting-guide">
+@* The server provides an initial print date; beforeprint refreshes it for both the print button and browser printing. *@<div class="guide-title-block">
+    <div class="eyebrow">YOUR PERSONAL ELECTION CHECKLIST</div><h1 class="mt-2">My voting guide</h1>
+    <p class="print-note">Prepared / print date: <time id="guide-print-date" datetime="@DateTimeOffset.UtcNow.ToString("O")">@TimeZoneInfo.ConvertTime(DateTimeOffset.UtcNow, TimeZoneInfo.FindSystemTimeZoneById("America/Vancouver")).ToString("MMMM d, yyyy HH:mm zzz") (Vancouver)</time></p>
+    <p class="guide-disclaimer">A personal reminder of your choices. This is not an official ballot and does not cast a vote. Seeded profiles and portraits are fictional demonstration content.</p>
+</div>
+<div class="no-print d-flex flex-wrap gap-3 mb-4"><a class="btn btn-outline-primary" asp-controller="Directory" asp-action="Index">Find more candidates</a>
+@if (Model.Count > 0) { <button class="btn btn-primary" id="print-guide" type="button">Print voting guide</button><form asp-action="Clear" method="post"><button class="btn btn-link">Clear guide</button></form> }</div>
+@if (Model.Count == 0) { <div class="empty"><h2>Your guide is ready for your choices.</h2><p>Browse candidates and select &ldquo;Add to guide&rdquo; to get started.</p><a asp-controller="Directory" asp-action="Index">Explore candidates &rarr;</a></div> }
+@* Group by database IDs because no-tracking queries can materialize distinct navigation objects for the same municipality. *@@foreach (var municipalityGroup in Model.GroupBy(x => x.Position.MunicipalityId))
+{
+    var municipality = municipalityGroup.First().Position.Municipality;
+    <section class="panel guide-group mb-4" aria-label="@municipality.Name voting guide">
+    <div class="guide-municipality-heading"><h2>@municipality.Name</h2><p>Election date: <strong>@municipality.ElectionDate.ToString("MMMM d, yyyy")</strong></p></div>
+    @foreach (var positionGroup in municipalityGroup.GroupBy(x => x.PositionId))
+    {
+        var position = positionGroup.First().Position;
+        <h3 class="guide-position-heading">@position.Name <span class="text-secondary small">&middot; @positionGroup.Count() selected / @position.SeatsAvailable seat(s)</span></h3>
+        @if (positionGroup.Count() > position.SeatsAvailable) { <p class="alert alert-warning">Available seats changed. Remove choices to stay within the current seat limit.</p> }
+        @foreach (var candidate in positionGroup)
+        {
+            <article class="guide-record" data-candidate-id="@candidate.CandidateId">
+            <div class="guide-row">
+                <img src="/media/@(candidate.PhotoFileName ?? "sample-avatar.svg")" alt="@(DemoCandidates.IsPortrait(candidate.PhotoFileName ?? "") ? $"AI-generated portrait of fictional candidate {candidate.Name}" : "Candidate portrait")" width="64" height="80" />
+                <div class="guide-candidate-identity"><strong>@candidate.Name</strong><div class="text-secondary">@position.Name &middot; @municipality.Name</div></div>
+                <form asp-action="Remove" method="post" class="no-print"><input type="hidden" name="id" value="@candidate.CandidateId" /><button class="btn btn-outline-danger btn-sm" aria-label="Remove @candidate.Name">Remove</button></form>
+            </div>
+@* Full biographies are available on screen; print CSS hides them to keep candidate records compact. *@            <details class="guide-biography no-print"><summary>About @candidate.Name</summary><p class="prose">@candidate.Profile</p></details>
+            </article>
+        }
+    }
+    </section>
+}
+<p class="small text-secondary no-print">Your choices are stored in this browser session for up to eight hours of inactivity. Print or save to PDF from your browser to keep a copy. Choose Letter or A4 in your print dialog; disable browser headers and footers for the cleanest copy.</p>
+</div>

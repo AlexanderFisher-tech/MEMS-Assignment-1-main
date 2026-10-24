@@ -1,0 +1,41 @@
+/*
+ * Project: Municipal Elections Management System (MEMS)
+ * Course: COMP4976
+ * Authors: Abdullah Rehan, Alex Fisher (project contributors)
+ * Description: Styles the responsive election interface and printer-friendly voting guide.
+ */
+:root{--ink:#192f39;--muted:#586d76;--teal:#08695f;--paper:#f5f7f7;--line:#dce5e6}html{font-size:16px}body{background:var(--paper);color:var(--ink);font-family:Inter,"Segoe UI",sans-serif;line-height:1.65}h1,h2,h3{letter-spacing:-.035em;line-height:1.2;font-weight:700}h1{font-size:clamp(2rem,4.5vw,3.8rem)}h2{font-size:1.7rem}h3{font-size:1.2rem}a{color:var(--teal);text-underline-offset:3px}.navbar-brand{color:var(--ink);letter-spacing:-.04em}.brand-mark{display:inline-grid;place-items:center;background:var(--teal);color:#fff;width:36px;height:36px;border-radius:10px;margin-right:8px}.brand-sub{font-size:.75rem;letter-spacing:.1em;color:var(--muted)}.nav-link{color:var(--muted)}.btn{border-radius:8px;padding:.55rem 1rem;font-weight:600}.btn-primary{--bs-btn-bg:var(--teal);--bs-btn-border-color:var(--teal);--bs-btn-hover-bg:#064f48;--bs-btn-hover-border-color:#064f48}.btn-outline-primary{--bs-btn-color:var(--teal);--bs-btn-border-color:var(--teal);--bs-btn-hover-bg:var(--teal);--bs-btn-hover-border-color:var(--teal)}.btn-link{color:var(--teal)}.eyebrow{text-transform:uppercase;font-size:.75rem;letter-spacing:.15em;font-weight:700;color:var(--teal)}.hero{background:#e6f0ed;border:1px solid #d6e5df;border-radius:20px;padding:clamp(1.5rem,4vw,3.5rem);position:relative;overflow:hidden}.hero p{max-width:650px;color:var(--muted);font-size:1.1rem}.hero-meta{display:inline-block;padding:.4rem .8rem;border:1px solid #b8d4ca;border-radius:40px;font-size:.85rem;background:#f5faf7}.section-heading{display:flex;align-items:center;justify-content:space-between;gap:1rem;margin:2.5rem 0 1.25rem}.card{border:1px solid var(--line);border-radius:14px;overflow:hidden;box-shadow:0 4px 14px #183f3a04}.card-body{padding:1.5rem}.municipal-icon{width:54px;height:54px;border-radius:14px;background:#edf3f0;display:grid;place-items:center;font-weight:700;font-size:1.4rem;color:var(--teal);object-fit:contain}.candidate-photo{width:100%;height:230px;object-fit:cover;object-position:center 30%;background:#e8eeef}.profile-photo{width:100%;max-height:440px;object-fit:cover;border-radius:16px;background:#e8eeef}.pill{background:#edf3f1;color:var(--teal);border-radius:40px;font-size:.8rem;padding:.25rem .65rem;display:inline-block}.filters,.panel{background:white;border:1px solid var(--line);border-radius:14px;padding:1.5rem}.form-label{font-weight:600;font-size:.9rem}.form-control,.form-select{border-color:#b9cacc;border-radius:7px;min-height:44px}.text-secondary{color:var(--muted)!important}.field-validation-error,.validation-summary-errors{color:#ab2534}.input-validation-error{border-color:#ab2534}.admin-nav{display:flex;flex-wrap:wrap;gap:1rem;padding:1rem 1.25rem;background:#e7eeef;border-radius:10px}.admin-nav a{font-weight:600}.table{--bs-table-bg:white}.table th{color:var(--muted);font-size:.8rem;text-transform:uppercase;letter-spacing:.05em}.table td,.table th{padding:1rem;vertical-align:middle}.footer{border-top:1px solid var(--line);font-size:.78rem;color:var(--muted)}.prose{white-space:pre-line}.stat{font-size:3rem;font-weight:700;line-height:1.4}.guide-row{display:flex;align-items:center;gap:1rem;padding:1rem 0;border-bottom:1px solid var(--line)}.guide-row img{width:64px;height:64px;object-fit:cover;border-radius:10px}.guide-row form{margin-left:auto}.skip-link{position:absolute;background:white;padding:1rem;z-index:100}.empty{padding:3rem;text-align:center;background:white;border:1px dashed #adc6c1;border-radius:14px}a:focus-visible,button:focus-visible{outline:3px solid #d69724;outline-offset:3px}@media print{body{background:white;color:black;font-size:11pt}.no-print,.footer,header{display:none!important}main.container{max-width:none;padding:0!important}.panel{border:0;padding:0}.guide-group{break-inside:avoid}.guide-row{break-inside:avoid}h1{font-size:24pt}a{color:black;text-decoration:none}.print-note{font-size:9pt}.guide-row img{display:none}}@media(max-width:575px){.admin-nav .eyebrow{width:100%}.hero{border-radius:12px}.table td,.table th{padding:.6rem}.section-heading{align-items:flex-start}.card-body{padding:1.1rem}}
+
+/* Candidate content and screen guide */
+.demo-notice{padding:.75rem 1rem;border-left:3px solid var(--teal);background:#eaf2ef;color:var(--muted)}
+.candidate-summary{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:3;overflow:hidden;line-height:1.55}
+.guide-title-block{margin-bottom:1.5rem}.guide-disclaimer{font-size:.9rem;color:var(--muted);max-width:56rem}
+.guide-position-heading{margin-top:1.5rem}.guide-record{border-bottom:1px solid var(--line)}
+.guide-record .guide-row{border:0}.guide-record .guide-row img{height:80px;object-position:center 25%}
+.guide-candidate-identity{min-width:0;overflow-wrap:anywhere}.guide-biography{margin:0 0 1rem 80px;font-size:.9rem}
+.guide-biography summary{cursor:pointer;color:var(--teal)}.guide-biography p{margin-top:.75rem}
+/* Keep paper size selectable in the browser for both Letter and A4. */
+@page{size:auto;margin:14mm}
+@media print{
+    html,body{font-size:10pt!important;line-height:1.35!important;background:#fff!important;color:#111!important}
+    header,nav,footer,form,button,.btn,.no-print,.skip-link,.alert-info{display:none!important}
+    main.container{width:auto!important;max-width:none!important;margin:0!important;padding:0!important}
+    .voting-guide{width:100%;color:#111}.voting-guide h1{font-size:22pt;margin:2mm 0!important;letter-spacing:-.02em}
+    .voting-guide .eyebrow{font-size:8pt;color:#333!important;letter-spacing:.08em}
+    .guide-title-block{margin-bottom:5mm;break-inside:avoid;page-break-inside:avoid}
+    .print-note{font-size:9pt;margin:2mm 0}.guide-disclaimer{font-size:8.5pt;margin:2mm 0 0;color:#333!important}
+    .guide-group.panel{border:0!important;border-top:1pt solid #555!important;border-radius:0;box-shadow:none;padding:4mm 0 0!important;margin:0 0 6mm!important;background:white}
+    /* Long municipality groups may span pages, but each candidate record stays together below. */
+    .guide-group{break-inside:auto;page-break-inside:auto}
+    .guide-municipality-heading{break-inside:avoid;break-after:avoid;page-break-after:avoid}
+    .guide-municipality-heading h2{font-size:16pt;margin:0 0 1mm}.guide-municipality-heading p{font-size:10pt;margin:0 0 3mm}
+    .guide-position-heading{font-size:11pt;margin:3mm 0 1mm!important;break-after:avoid;page-break-after:avoid}
+    .guide-position-heading span{font-size:8.5pt;font-weight:400;color:#333!important}
+    .guide-record{display:block;break-inside:avoid!important;page-break-inside:avoid!important;border-bottom:.5pt solid #bbb}
+    .guide-record .guide-row{display:flex;align-items:center;gap:3mm;padding:2mm 0;margin:0;break-inside:avoid;page-break-inside:avoid;min-height:19mm}
+    /* Override the earlier compact-print image rule to retain small, recognizable portraits. */
+    .guide-record .guide-row img{display:block!important;width:14mm!important;height:17.5mm!important;border-radius:1mm;flex:none;object-fit:cover}
+    .guide-candidate-identity strong{font-size:11pt}.guide-candidate-identity .text-secondary{font-size:9pt;color:#333!important}
+    .voting-guide .alert-warning{padding:2mm;border:1pt solid #555;background:white;color:#111;font-size:9pt;break-inside:avoid}
+    .voting-guide p{orphans:3;widows:3}a[href]::after{content:none!important}
+}

@@ -1,0 +1,18 @@
+@model CandidateForm
+@*
+ * Project: Municipal Elections Management System (MEMS)
+ * Course: COMP4976
+ * Authors: Abdullah Rehan, Alex Fisher (project contributors)
+ * Description: Renders the validated candidate create/edit form.
+*@@{ var creating = Model.CandidateId == 0; ViewData["Title"] = creating ? "Add candidate" : "Edit candidate"; }
+<h1 class="h2 mb-4">@ViewData["Title"]</h1>
+<form asp-action="@(creating ? "Create" : "Edit")" asp-route-id="@(creating ? (int?)null : Model.CandidateId)" method="post" enctype="multipart/form-data" class="panel" style="max-width:850px"><input type="hidden" asp-for="CandidateId" /><div asp-validation-summary="All" role="alert"></div>
+<div class="mb-3"><label asp-for="Name" class="form-label"></label><input asp-for="Name" class="form-control" maxlength="100" /><span asp-validation-for="Name"></span></div>
+@* The data-municipality options support client filtering; the controller independently validates the submitted parent pair. *@<div class="row"><div class="col-md-6 mb-3"><label for="candidate-municipality" class="form-label">Municipality</label><select asp-for="MunicipalityId" asp-items="Model.Municipalities" class="form-select" id="candidate-municipality"><option value="">Choose a municipality</option></select><span asp-validation-for="MunicipalityId"></span></div>
+<div class="col-md-6 mb-3"><label for="candidate-position" class="form-label">Position</label><select asp-for="PositionId" class="form-select" id="candidate-position"><option value="">Choose a position</option>@foreach (var p in Model.Positions) { <option value="@p.PositionId" data-municipality="@p.MunicipalityId">@p.Name — @p.Municipality.Name</option> }</select><span asp-validation-for="PositionId"></span></div></div>
+<div class="mb-3"><label asp-for="Profile" class="form-label"></label><textarea asp-for="Profile" class="form-control" rows="7" maxlength="4000"></textarea><span asp-validation-for="Profile"></span></div>
+<div class="row"><div class="col-md-6 mb-3"><label asp-for="Website" class="form-label"></label><input asp-for="Website" class="form-control" placeholder="https://" maxlength="300" /><span asp-validation-for="Website"></span></div><div class="col-md-6 mb-3"><label asp-for="Email" class="form-label"></label><input asp-for="Email" class="form-control" maxlength="254" /><span asp-validation-for="Email"></span></div></div>
+<partial name="_ImageInput" model="@(new ImageInputModel(Model.CurrentImage, "Candidate photograph"))" />
+<button class="btn btn-primary">Save candidate</button><a class="btn btn-link" asp-action="Index">Cancel</a></form>
+@section Scripts { <partial name="_ValidationScriptsPartial" /> }
+

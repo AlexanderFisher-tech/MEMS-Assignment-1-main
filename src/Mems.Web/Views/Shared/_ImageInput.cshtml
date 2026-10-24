@@ -1,0 +1,11 @@
+@model ImageInputModel
+@*
+ * Project: Municipal Elections Management System (MEMS)
+ * Course: COMP4976
+ * Authors: Abdullah Rehan, Alex Fisher (project contributors)
+ * Description: Renders shared image selection, removal, and validation feedback.
+*@<div class="mb-4">
+    @if (Model.CurrentImage is not null) { <img src="/media/@Model.CurrentImage" alt="Current image" style="height:90px;max-width:160px;object-fit:contain" class="d-block mb-2" /><div class="form-check mb-2"><input class="form-check-input" type="checkbox" name="RemoveImage" id="RemoveImage" value="true" /><label class="form-check-label" for="RemoveImage">Remove current image</label></div> }
+@* The accept filter is a browser hint; uploaded bytes are decoded and validated by ImageStore. *@    <label class="form-label" for="Image">@Model.Label</label><input class="form-control image-upload" type="file" name="Image" id="Image" accept="image/png,image/jpeg" aria-describedby="image-help" />
+    <div id="image-help" class="form-text">JPEG or PNG, up to 2 MB and 16 megapixels. A replacement takes priority over removal.</div><span class="field-validation-valid" data-valmsg-for="Image" data-valmsg-replace="true"></span>
+</div>

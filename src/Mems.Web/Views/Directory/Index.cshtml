@@ -1,0 +1,38 @@
+@model DirectoryViewModel
+@*
+ * Project: Municipal Elections Management System (MEMS)
+ * Course: COMP4976
+ * Authors: Abdullah Rehan, Alex Fisher (project contributors)
+ * Description: Displays filtered candidate cards, saved choices, and pagination.
+*@@{ ViewData["Title"] = "Meet your candidates"; }
+<div class="eyebrow">THE CANDIDATE DIRECTORY</div><h1 class="mt-2">Meet your candidates.</h1><p class="text-secondary mb-4">Discover who is standing for your community, one position at a time.</p>
+<p class="demo-notice small">Seeded profiles and AI-generated portraits are fictional demonstration content, not real election candidates or endorsements.</p>
+<form method="get" class="filters row g-3 mx-0 mb-4">
+    <div class="col-lg-4"><label class="form-label" asp-for="Search">Candidate name</label><input class="form-control" asp-for="Search" placeholder="Search by name" maxlength="100" /></div>
+    <div class="col-lg-3"><label class="form-label" for="directory-municipality">Municipality</label><select class="form-select" asp-for="MunicipalityId" id="directory-municipality"><option value="">All municipalities</option>@foreach (var m in Model.Municipalities) { <option value="@m.MunicipalityId">@m.Name</option> }</select></div>
+    <div class="col-lg-3"><label class="form-label" for="directory-position">Position</label><select class="form-select" asp-for="PositionId" id="directory-position"><option value="">All positions</option>@foreach (var p in Model.Positions) { <option value="@p.PositionId">@p.Name — @p.Municipality.Name</option> }</select></div>
+    <div class="col-lg-2 d-flex align-items-end"><button class="btn btn-primary w-100">Search</button></div>
+</form>
+<div class="d-flex justify-content-between mb-3"><span class="text-secondary">@Model.TotalCount candidate(s) found</span><a asp-action="Index">Reset filters</a></div>
+<div class="row g-4">
+@foreach (var candidate in Model.Candidates)
+{
+    <div class="col-md-6 col-xl-3"><article class="card h-100">
+        <img class="candidate-photo" src="/media/@(candidate.PhotoFileName ?? "sample-avatar.svg")" alt="@(DemoCandidates.IsPortrait(candidate.PhotoFileName ?? "") ? $"AI-generated portrait of fictional candidate {candidate.Name}" : candidate.PhotoFileName is null or "sample-avatar.svg" ? "Placeholder portrait" : $"Photograph of {candidate.Name}")" loading="lazy" width="480" height="600" />
+        <div class="card-body d-flex flex-column"><span class="text-secondary small">@candidate.Position.Municipality.Name</span><h3 class="mt-1"><a class="text-decoration-none" asp-action="Details" asp-route-id="@candidate.CandidateId">@candidate.Name</a></h3><span class="mb-3">@candidate.Position.Name</span>
+            <p class="candidate-summary small text-secondary">@(candidate.Profile.Length <= 160 ? candidate.Profile : candidate.Profile[..157] + "...")</p>
+            <div class="mt-auto">@if (Model.SelectedIds.Contains(candidate.CandidateId)) { <a class="btn btn-outline-primary w-100" asp-controller="Guide" asp-action="Index">✓ In your guide</a> }
+            else { <form asp-controller="Guide" asp-action="Add" method="post"><input type="hidden" name="id" value="@candidate.CandidateId" /><input type="hidden" name="returnUrl" value="@(Context.Request.Path + Context.Request.QueryString)" /><button class="btn btn-outline-primary w-100">+ Add to guide</button></form> }</div>
+        </div>
+    </article></div>
+}
+</div>
+@if (Model.TotalCount == 0) { <div class="empty"><h2>No matching candidates</h2><p class="mb-0">Try another name or reset your filters.</p></div> }
+@if (Model.TotalPages > 1) {
+    <nav aria-label="Candidate pages" class="mt-4 d-flex gap-3 align-items-center">
+    @if (Model.Page > 1) { <a class="btn btn-outline-primary" asp-action="Index" asp-route-search="@Model.Search" asp-route-municipalityId="@Model.MunicipalityId" asp-route-positionId="@Model.PositionId" asp-route-page="@(Model.Page - 1)">Previous</a> }
+    <span>Page @Model.Page of @Model.TotalPages</span>
+    @if (Model.Page < Model.TotalPages) { <a class="btn btn-outline-primary" asp-action="Index" asp-route-search="@Model.Search" asp-route-municipalityId="@Model.MunicipalityId" asp-route-positionId="@Model.PositionId" asp-route-page="@(Model.Page + 1)">Next</a> }
+    </nav>
+}
+
