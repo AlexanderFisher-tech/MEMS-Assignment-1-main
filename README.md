@@ -14,7 +14,7 @@
 
 ### Why a separate project?
 
-The COMP4976 MVC site (`src/Mems.Web`) is already deployed to Azure by `.github/workflows/main_mems-civic-guide-bcit.yml` and uses cookie auth, anti-forgery tokens and admin areas. Adding a stateless JWT API to it would have meant mixing two auth schemes and risking that deployment. `src/Mems.Api` is a clean, standalone Web API that **reuses** the MVC project's entity design, the 24 fictional candidates and biographies (`Data/DemoCandidates.cs`), and the candidate portraits (`wwwroot/images/demo-candidates`). It deploys as one App Service web app on its own and doesn't touch the MVC site.
+The COMP4976 MVC site (`src/Mems.Web`) is my partner's project, already deployed to Azure from their own repository, and uses cookie auth, anti-forgery tokens and admin areas. Adding a stateless JWT API to it would have meant mixing two auth schemes and risking that deployment. `src/Mems.Api` is a clean, standalone Web API that **reuses** the MVC project's entity design, the 24 fictional candidates and biographies (`Data/DemoCandidates.cs`), and the candidate portraits (`wwwroot/images/demo-candidates`). It deploys as one App Service web app on its own and doesn't touch the MVC site.
 
 Differences from the MVC data, which follow the COMP4977 spec:
 
