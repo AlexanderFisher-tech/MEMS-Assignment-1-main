@@ -41,7 +41,14 @@ public class ApiTests(ApiFactory factory) : IClassFixture<ApiFactory>
     private static void AssertKeys(JsonElement element, params string[] expected) => Assert.Equal(expected.Order().ToArray(), Keys(element));
 
     private static readonly string[] CandidateKeys = ["candidateId", "name", "biography", "photoUrl", "website", "email",
-        "positionId", "positionName", "municipalityId", "municipalityName"];
+        "positionId", "positionName", "seatsAvailable", "municipalityId", "municipalityName"];
+
+    private static async Task<List<JsonElement>> Array(HttpClient api, string url)
+    {
+        var response = await api.GetAsync(url);
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        return (await Json(response)).EnumerateArray().ToList();
+    }
 
     private static string NewEmail() => $"user-{Guid.NewGuid():N}@example.com";
 
@@ -96,9 +103,9 @@ public class ApiTests(ApiFactory factory) : IClassFixture<ApiFactory>
     public async Task Positions_include_required_offices_and_municipality_names()
     {
         using var api = factory.Api();
-        var list = (await Json(await api.GetAsync("/api/positions"))).EnumerateArray().ToList();
-        foreach (var name in new[] { "Mayor", "Councillor", "School Trustee" })
-            Assert.Contains(list, x => x.GetProperty("name").GetString() == name);
+        var list = await Array(api, "/api/positions?city=Burnaby");
+        Assert.Equal(new[] { "Mayor", "Councillor", "School Trustee" }, list.Select(x => x.GetProperty("name").GetString()));
+        Assert.All(list, x => Assert.Equal("Burnaby", x.GetProperty("municipalityName").GetString()));
         var mayor = list.First(x => x.GetProperty("name").GetString() == "Mayor");
         AssertKeys(mayor, "positionId", "name", "seatsAvailable", "municipalityId", "municipalityName");
         Assert.Equal(1, mayor.GetProperty("seatsAvailable").GetInt32());
@@ -108,16 +115,28 @@ public class ApiTests(ApiFactory factory) : IClassFixture<ApiFactory>
         Assert.Equal(HttpStatusCode.OK, single.StatusCode);
         Assert.Equal("Mayor", (await Json(single)).GetProperty("name").GetString());
         Assert.Equal(HttpStatusCode.NotFound, (await api.GetAsync("/api/positions/99999")).StatusCode);
+        var mayorId = mayor.GetProperty("positionId").GetInt32();
+        Assert.Equal(HttpStatusCode.OK, (await api.GetAsync($"/api/positions/{mayorId}?city=burnaby")).StatusCode);
+        var otherCity = await api.GetAsync($"/api/positions/{mayorId}?city=Surrey");
+        Assert.Equal(HttpStatusCode.NotFound, otherCity.StatusCode);
+        Assert.Equal("Position not found in Surrey", (await Json(otherCity)).GetProperty("message").GetString());
+
+        // "Offices" is the Assignment 2 name for positions.
+        var offices = await Array(api, "/api/offices?city=Burnaby");
+        Assert.Equal(list.Select(x => x.GetProperty("positionId").GetInt32()), offices.Select(x => x.GetProperty("positionId").GetInt32()));
     }
 
     [Fact]
     public async Task Candidates_list_details_and_photos_are_public()
     {
         using var api = factory.Api();
-        var list = (await Json(await api.GetAsync("/api/candidates"))).EnumerateArray().ToList();
-        Assert.True(list.Count >= 10);
+        var list = await Array(api, "/api/candidates?city=Burnaby");
+        Assert.True(list.Count >= 2);
+        Assert.All(list, x => Assert.Equal("Burnaby", x.GetProperty("municipalityName").GetString()));
         var first = list[0];
         AssertKeys(first, CandidateKeys);
+        Assert.Equal("Mayor", first.GetProperty("positionName").GetString());
+        Assert.Equal(1, first.GetProperty("seatsAvailable").GetInt32());
         Assert.False(string.IsNullOrWhiteSpace(first.GetProperty("biography").GetString()));
         var photoUrl = first.GetProperty("photoUrl").GetString()!;
         Assert.StartsWith("https://localhost/images/demo-candidates/", photoUrl);
@@ -131,25 +150,71 @@ public class ApiTests(ApiFactory factory) : IClassFixture<ApiFactory>
         var missing = await api.GetAsync("/api/candidates/99999");
         Assert.Equal(HttpStatusCode.NotFound, missing.StatusCode);
         Assert.Equal("Candidate not found", (await Json(missing)).GetProperty("message").GetString());
+        Assert.Equal(HttpStatusCode.OK, (await api.GetAsync($"/api/candidates/{id}?city=Burnaby")).StatusCode);
+        Assert.Equal(HttpStatusCode.NotFound, (await api.GetAsync($"/api/candidates/{id}?city=Maple Ridge")).StatusCode);
 
-        // Optional filters for the iOS directory.
+        // municipalityId works as an alternative to city, and positionId narrows to one office.
         var municipalityId = first.GetProperty("municipalityId").GetInt32();
-        var filtered = (await Json(await api.GetAsync($"/api/candidates?municipalityId={municipalityId}"))).EnumerateArray().ToList();
-        Assert.NotEmpty(filtered);
-        Assert.All(filtered, x => Assert.Equal(municipalityId, x.GetProperty("municipalityId").GetInt32()));
+        Assert.Equal(list.Count, (await Array(api, $"/api/candidates?municipalityId={municipalityId}")).Count);
+        var positionId = first.GetProperty("positionId").GetInt32();
+        var mayors = await Array(api, $"/api/candidates?city=Burnaby&positionId={positionId}");
+        Assert.NotEmpty(mayors);
+        Assert.All(mayors, x => Assert.Equal(positionId, x.GetProperty("positionId").GetInt32()));
+    }
+
+    [Fact]
+    public async Task Election_data_requires_a_municipality_and_never_mixes_municipalities()
+    {
+        using var api = factory.Api();
+        foreach (var url in new[] { "/api/candidates", "/api/candidates/search?name=a", "/api/positions", "/api/offices", "/api/elections" })
+        {
+            var response = await api.GetAsync(url);
+            Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+            Assert.Contains("?city=", (await Json(response)).GetProperty("message").GetString());
+        }
+        var unknown = await api.GetAsync("/api/candidates?city=Atlantis");
+        Assert.Equal(HttpStatusCode.NotFound, unknown.StatusCode);
+        Assert.Equal("Municipality 'Atlantis' not found", (await Json(unknown)).GetProperty("message").GetString());
+        var burnabyId = (await Array(api, "/api/municipalities")).Single(x => x.GetProperty("name").GetString() == "Burnaby").GetProperty("municipalityId").GetInt32();
+        Assert.Equal(HttpStatusCode.BadRequest, (await api.GetAsync($"/api/candidates?city=Surrey&municipalityId={burnabyId}")).StatusCode);
+
+        // Each city returns only its own candidates, and together they cover all of them exactly once.
+        var ids = new List<int>();
+        foreach (var city in new[] { "Pitt Meadows", "Maple Ridge", "Burnaby", "Surrey" })
+        {
+            var candidates = await Array(api, $"/api/candidates?city={Uri.EscapeDataString(city.ToUpperInvariant())}");
+            Assert.Equal(6, candidates.Count);
+            Assert.All(candidates, x => Assert.Equal(city, x.GetProperty("municipalityName").GetString()));
+            ids.AddRange(candidates.Select(x => x.GetProperty("candidateId").GetInt32()));
+        }
+        Assert.Equal(24, ids.Distinct().Count());
+
+        var election = await api.GetAsync("/api/elections?city=Pitt%20Meadows");
+        Assert.Equal(HttpStatusCode.OK, election.StatusCode);
+        var body = await Json(election);
+        AssertKeys(body, "municipalityId", "municipalityName", "province", "electionDate", "description", "logoUrl", "offices", "candidateCount");
+        Assert.Equal("Pitt Meadows", body.GetProperty("municipalityName").GetString());
+        Assert.Equal("2026-10-17T00:00:00", body.GetProperty("electionDate").GetString());
+        Assert.Equal(6, body.GetProperty("candidateCount").GetInt32());
+        var offices = body.GetProperty("offices").EnumerateArray().ToList();
+        Assert.Equal(new[] { 1, 6, 2 }, offices.Select(x => x.GetProperty("seatsAvailable").GetInt32()));
+        Assert.All(offices, x => Assert.Equal("Pitt Meadows", x.GetProperty("municipalityName").GetString()));
     }
 
     [Fact]
     public async Task Candidate_search_is_case_insensitive_partial_and_empty_returns_all()
     {
         using var api = factory.Api();
-        var all = (await Json(await api.GetAsync("/api/candidates"))).GetArrayLength();
-        var results = (await Json(await api.GetAsync("/api/candidates/search?name=ELLI"))).EnumerateArray().ToList();
+        const string city = "city=Pitt%20Meadows";
+        var all = (await Array(api, $"/api/candidates?{city}")).Count;
+        var results = await Array(api, $"/api/candidates/search?name=ELLI&{city}");
         Assert.Contains(results, x => x.GetProperty("name").GetString() == "Mara Ellison");
         Assert.All(results, x => Assert.Contains("elli", x.GetProperty("name").GetString()!, StringComparison.OrdinalIgnoreCase));
-        Assert.Equal(all, (await Json(await api.GetAsync("/api/candidates/search?name="))).GetArrayLength());
-        Assert.Equal(all, (await Json(await api.GetAsync("/api/candidates/search"))).GetArrayLength());
-        Assert.Equal(0, (await Json(await api.GetAsync("/api/candidates/search?name=zzzz-nobody"))).GetArrayLength());
+        Assert.Equal(all, (await Array(api, $"/api/candidates/search?name=&{city}")).Count);
+        Assert.Equal(all, (await Array(api, $"/api/candidates/search?{city}")).Count);
+        Assert.Empty(await Array(api, $"/api/candidates/search?name=zzzz-nobody&{city}"));
+        // A match in another municipality is not returned.
+        Assert.Empty(await Array(api, "/api/candidates/search?name=Ellison&city=Burnaby"));
     }
 
     [Fact]
@@ -238,8 +303,11 @@ public class ApiTests(ApiFactory factory) : IClassFixture<ApiFactory>
         using var api = factory.Api();
         var (token, _) = await RegisterAndLogin(api, "Voter One");
         var (otherToken, _) = await RegisterAndLogin(api, "Voter Two");
-        var candidates = (await Json(await api.GetAsync("/api/candidates"))).EnumerateArray().Select(x => x.GetProperty("candidateId").GetInt32()).ToList();
-        int first = candidates[0], second = candidates[1];
+        // Burnaby is listed Mayor, Mayor, Councillor, ...: first is a mayor, second a councillor.
+        var burnaby = await Array(api, "/api/candidates?city=Burnaby");
+        var first = burnaby[0].GetProperty("candidateId").GetInt32();
+        var otherMayor = burnaby[1].GetProperty("candidateId").GetInt32();
+        var second = burnaby.First(x => x.GetProperty("positionName").GetString() == "Councillor").GetProperty("candidateId").GetInt32();
 
         Assert.Equal(0, (await Json(await api.SendAsync(Authorized(HttpMethod.Get, "/api/savedcandidates", token)))).GetArrayLength());
 
@@ -262,6 +330,13 @@ public class ApiTests(ApiFactory factory) : IClassFixture<ApiFactory>
         Assert.Equal(HttpStatusCode.BadRequest, (await api.SendAsync(Authorized(HttpMethod.Post, "/api/savedcandidates", token, new { }))).StatusCode);
         Assert.Equal(HttpStatusCode.Created, (await api.SendAsync(Authorized(HttpMethod.Post, "/api/savedcandidates", token, new { candidateId = second }))).StatusCode);
 
+        // Only one Mayor seat: a second mayor is refused until the first is removed.
+        var secondMayor = await api.SendAsync(Authorized(HttpMethod.Post, "/api/savedcandidates", token, new { candidateId = otherMayor }));
+        Assert.Equal(HttpStatusCode.Conflict, secondMayor.StatusCode);
+        Assert.Equal("You can only choose 1 Mayor in Burnaby. Remove one before adding another.", (await Json(secondMayor)).GetProperty("message").GetString());
+        Assert.Equal(2, (await Json(await api.SendAsync(Authorized(HttpMethod.Get, "/api/savedcandidates?city=Burnaby", token)))).GetArrayLength());
+        Assert.Equal(0, (await Json(await api.SendAsync(Authorized(HttpMethod.Get, "/api/savedcandidates?city=Surrey", token)))).GetArrayLength());
+
         var mine = (await Json(await api.SendAsync(Authorized(HttpMethod.Get, "/api/savedcandidates", token)))).EnumerateArray().ToList();
         Assert.Equal(new[] { first, second }.Order(), mine.Select(x => x.GetProperty("candidateId").GetInt32()).Order());
         // Another user cannot see or delete these entries.
@@ -274,6 +349,7 @@ public class ApiTests(ApiFactory factory) : IClassFixture<ApiFactory>
         Assert.Equal(HttpStatusCode.NoContent, (await api.SendAsync(Authorized(HttpMethod.Delete, $"/api/savedcandidates/{second}", token))).StatusCode);
         Assert.Equal(0, (await Json(await api.SendAsync(Authorized(HttpMethod.Get, "/api/savedcandidates", token)))).GetArrayLength());
         Assert.Equal(HttpStatusCode.NotFound, (await api.SendAsync(Authorized(HttpMethod.Delete, $"/api/savedcandidates/{second}", token))).StatusCode);
+        Assert.Equal(HttpStatusCode.Created, (await api.SendAsync(Authorized(HttpMethod.Post, "/api/savedcandidates", token, new { candidateId = otherMayor }))).StatusCode);
         Assert.Equal(1, (await Json(await api.SendAsync(Authorized(HttpMethod.Get, "/api/savedcandidates", otherToken)))).GetArrayLength());
     }
 
@@ -284,7 +360,7 @@ public class ApiTests(ApiFactory factory) : IClassFixture<ApiFactory>
         var swagger = await api.GetAsync("/swagger/v1/swagger.json");
         Assert.Equal(HttpStatusCode.OK, swagger.StatusCode);
         var paths = (await Json(swagger)).GetProperty("paths");
-        foreach (var path in new[] { "/api/auth/register", "/api/auth/login", "/api/municipalities", "/api/positions/{id}", "/api/candidates/search", "/api/savedcandidates/{id}" })
+        foreach (var path in new[] { "/api/auth/register", "/api/auth/login", "/api/municipalities", "/api/positions/{id}", "/api/offices", "/api/elections", "/api/candidates/search", "/api/savedcandidates/{id}" })
             Assert.True(paths.TryGetProperty(path, out _), path);
         Assert.Equal(HttpStatusCode.OK, (await api.GetAsync("/swagger/index.html")).StatusCode);
 

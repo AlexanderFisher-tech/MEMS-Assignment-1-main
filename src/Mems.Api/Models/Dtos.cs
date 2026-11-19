@@ -27,7 +27,12 @@ public record MunicipalityDto(int MunicipalityId, string Name, string Province, 
 
 public record PositionDto(int PositionId, string Name, int SeatsAvailable, int MunicipalityId, string MunicipalityName);
 
+/// <summary>SeatsAvailable is the candidate's position's seat count, i.e. how many candidates for that office a voter may choose.</summary>
 public record CandidateDto(int CandidateId, string Name, string Biography, string? PhotoUrl, string? Website, string? Email,
-    int PositionId, string PositionName, int MunicipalityId, string MunicipalityName);
+    int PositionId, string PositionName, int SeatsAvailable, int MunicipalityId, string MunicipalityName);
+
+/// <summary>One municipality's election: the municipality details plus its offices (with seat counts) and how many candidates are running.</summary>
+public record ElectionDto(int MunicipalityId, string MunicipalityName, string Province, DateTime ElectionDate, string Description,
+    string? LogoUrl, IReadOnlyList<PositionDto> Offices, int CandidateCount);
 
 public record SavedCandidateDto(int SavedCandidateId, string UserId, int CandidateId, DateTime DateSaved, CandidateDto Candidate);
