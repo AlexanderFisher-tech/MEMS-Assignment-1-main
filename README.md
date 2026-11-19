@@ -1,6 +1,6 @@
-# COMP4977 Assignment 1 — Part 1: ASP.NET Core Web API
+# COMP4977 Assignments 1 & 2 — ASP.NET Core Web API
 
-**Municipal Elections Companion API** — the backend for the SwiftUI app (Part 2).
+**Municipal Elections Companion API** — the backend for the SwiftUI app.
 
 | Item | Value |
 | --- | --- |
@@ -24,6 +24,22 @@ Differences from the MVC data, which follow the COMP4977 spec:
 - Image file names become **`PhotoUrl` / `LogoUrl`**.
 - `Candidate` gets the spec's `MunicipalityId` column.
 - New PNG municipality logos are in `wwwroot/images/logos`. These are simple original crests, not official logos. They are PNG because SwiftUI's `AsyncImage` can't render SVG.
+
+### Assignment 2 changes (Web API)
+
+Assignment 2 keeps the same API, Azure app, login and JWT. The API changes are:
+
+- **Election data is scoped to one municipality.** `GET /api/candidates`, `/api/candidates/search`, `/api/positions` and the new `/api/offices` and `/api/elections` now **require** the municipality, given as `?city={name}` (case-insensitive, e.g. `?city=Burnaby`) or `?municipalityId={id}`.
+  - Without one, they return `400`. An unknown city returns `404`.
+  - They only ever return that municipality's records, so another city's data can't leak into the app.
+- **Single-item lookups can be scoped too.** `GET /api/candidates/{id}?city=Burnaby` and `/api/positions/{id}?city=Burnaby` return `404` when the record belongs to a different municipality.
+- **New `GET /api/offices?city=`.** This is the spec's name for positions; it returns the same data as `/api/positions`.
+- **New `GET /api/elections?city=`.** It returns one municipality's election: date, description, logo, its offices with seat counts, and the number of candidates.
+- **Candidates now include `seatsAvailable`.** This is how many candidates for that office a voter may choose, so the app can stop a user from selecting two mayors.
+- **Assignment 1 fix: seat limit in the voting guide.** `POST /api/savedcandidates` now refuses a selection beyond the office's seat count, e.g. a second mayor, with `409 {"message":"You can only choose 1 Mayor in Burnaby. Remove one before adding another."}`.
+- **The voting-guide list can be filtered by city.** `GET /api/savedcandidates?city=` returns only that municipality's entries.
+- **Firestore replaces the voting guide.** In Assignment 2 the app stores candidate selections in Firebase Firestore, and the user signs in to Firebase on the iOS side. The `/api/savedcandidates` endpoints remain available, but the app no longer uses them.
+- **`GET /api/municipalities` stays unfiltered.** The app needs the full list so the user can choose their city.
 
 ---
 
@@ -180,20 +196,26 @@ All responses are JSON in camelCase. Every error, including validation failures,
 | POST | `/api/auth/login` | public | 200 `{token,name,email}` | 400, 401 `{message}` |
 | GET | `/api/municipalities` | public | 200 `MunicipalityDto[]` | |
 | GET | `/api/municipalities/{id}` | public | 200 `MunicipalityDto` | 404 |
-| GET | `/api/positions[?municipalityId=]` | public | 200 `PositionDto[]` | |
-| GET | `/api/positions/{id}` | public | 200 `PositionDto` | 404 |
-| GET | `/api/candidates[?municipalityId=&positionId=]` | public | 200 `CandidateDto[]` | |
-| GET | `/api/candidates/{id}` | public | 200 `CandidateDto` | 404 |
-| GET | `/api/candidates/search?name={q}[&municipalityId=&positionId=]` | public | 200 `CandidateDto[]` | |
-| GET | `/api/savedcandidates` | 🔒 Bearer | 200 `SavedCandidateDto[]` (newest first) | 401 |
+| GET | `/api/elections?city={name}` | public | 200 `ElectionDto` | 400, 404 |
+| GET | `/api/positions?city={name}` (alias `/api/offices?city={name}`) | public | 200 `PositionDto[]` | 400, 404 |
+| GET | `/api/positions/{id}[?city=]` (alias `/api/offices/{id}`) | public | 200 `PositionDto` | 404 |
+| GET | `/api/candidates?city={name}[&positionId=]` | public | 200 `CandidateDto[]` | 400, 404 |
+| GET | `/api/candidates/{id}[?city=]` | public | 200 `CandidateDto` | 404 |
+| GET | `/api/candidates/search?city={name}&name={q}[&positionId=]` | public | 200 `CandidateDto[]` | 400, 404 |
+| GET | `/api/savedcandidates[?city=]` | 🔒 Bearer | 200 `SavedCandidateDto[]` (newest first) | 401, 404 |
 | GET | `/api/savedcandidates/{id}` | 🔒 Bearer | 200 `SavedCandidateDto` | 401, 404 |
 | POST | `/api/savedcandidates` | 🔒 Bearer | 201 `SavedCandidateDto` | 400, 401, 404, 409 |
 | DELETE | `/api/savedcandidates/{id}` | 🔒 Bearer | 204 No Content | 401, 404 |
 
 Notes:
 
-- `search` does a case-insensitive partial match on the candidate name. If `name` is missing or empty, it returns every candidate.
-- `municipalityId` and `positionId` are optional extra filters for the iOS directory screen.
+- **Municipality scoping:** wherever `city` appears, `municipalityId={id}` works instead.
+  - On the lists and on `/api/elections` the municipality is **required**: without one you get `400 {"message":"Specify a municipality with ?city={name} (for example ?city=Burnaby) or ?municipalityId={id}."}`.
+  - An unknown city returns `404 {"message":"Municipality 'X' not found"}`.
+  - On the `{id}` lookups it is optional. When given, a record from another municipality returns `404`.
+- `search` does a case-insensitive partial match on the candidate name, within the chosen municipality. If `name` is missing or empty, it returns all of that municipality's candidates.
+- `positionId` is an optional extra filter for the iOS directory screen.
+- `POST /api/savedcandidates` returns `409` when the candidate is already saved, or when the user already has as many candidates for that office as it has seats.
 - `DELETE /api/savedcandidates/{id}` first looks for one of the user's entries whose **SavedCandidateId** is `id`. If there isn't one, it looks for an entry whose **CandidateId** is `id`. That way the app can remove an entry using either ID.
 - The saved-candidate endpoints only ever read or change the signed-in user's entries. The user ID comes from the token's `sub` claim.
 
@@ -242,6 +264,29 @@ The token's claims are `sub` (user ID), `email`, `name`, `jti`, `iss` (`MemsApi`
 ]
 ```
 
+**`GET /api/elections?city=Pitt%20Meadows`**
+
+```json
+{
+  "municipalityId": 1, "municipalityName": "Pitt Meadows", "province": "BC",
+  "electionDate": "2026-10-17T00:00:00", "description": "A rural-urban community on the Fraser and Pitt rivers …",
+  "logoUrl": "https://localhost:5090/images/logos/pitt-meadows.png",
+  "offices": [
+    { "positionId": 1, "name": "Mayor", "seatsAvailable": 1, "municipalityId": 1, "municipalityName": "Pitt Meadows" },
+    { "positionId": 2, "name": "Councillor", "seatsAvailable": 6, "municipalityId": 1, "municipalityName": "Pitt Meadows" },
+    { "positionId": 3, "name": "School Trustee", "seatsAvailable": 2, "municipalityId": 1, "municipalityName": "Pitt Meadows" }
+  ],
+  "candidateCount": 6
+}
+```
+
+**`GET /api/candidates`** (no municipality)
+
+```json
+// 400
+{ "message": "Specify a municipality with ?city={name} (for example ?city=Burnaby) or ?municipalityId={id}." }
+```
+
 **`GET /api/positions/2`**
 
 ```json
@@ -260,14 +305,15 @@ The token's claims are `sub` (user ID), `email`, `name`, `jti`, `iss` (`MemsApi`
   "email": "mara.ellison@example.org",
   "positionId": 1,
   "positionName": "Mayor",
+  "seatsAvailable": 1,
   "municipalityId": 1,
   "municipalityName": "Pitt Meadows"
 }
 ```
 
-**`GET /api/candidates/search?name=AN`** returns an array of `CandidateDto`:
+**`GET /api/candidates/search?city=Burnaby&name=AN`** returns an array of `CandidateDto`:
 
-`Adrian Solano, Vivian Kessler, Mei Tanaka, Daniel Hwang, Priya Nand, Julian Mensah, Hassan Beaumont`
+`Adrian Solano, Vivian Kessler, Mei Tanaka`
 
 **`POST /api/savedcandidates`** (header `Authorization: Bearer <token>`)
 
@@ -284,11 +330,13 @@ The token's claims are `sub` (user ID), `email`, `name`, `jti`, `iss` (`MemsApi`
     "candidateId": 1, "name": "Mara Ellison", "biography": "…",
     "photoUrl": "https://localhost:5090/images/demo-candidates/demo-mara-ellison.jpg",
     "website": "https://example.org/candidates/mara-ellison", "email": "mara.ellison@example.org",
-    "positionId": 1, "positionName": "Mayor", "municipalityId": 1, "municipalityName": "Pitt Meadows"
+    "positionId": 1, "positionName": "Mayor", "seatsAvailable": 1, "municipalityId": 1, "municipalityName": "Pitt Meadows"
   }
 }
 // 409 (already saved)
 { "message": "Candidate already in voting guide" }
+// 409 (office full, e.g. a second mayor)
+{ "message": "You can only choose 1 Mayor in Pitt Meadows. Remove one before adding another." }
 // 404 (no such candidate)
 { "message": "Candidate not found" }
 ```

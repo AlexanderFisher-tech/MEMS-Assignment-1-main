@@ -38,7 +38,12 @@ public class DtoMapper(IHttpContextAccessor accessor, IConfiguration config)
     /// <summary>Requires Candidate.Position and Candidate.Municipality to be loaded.</summary>
     public CandidateDto Map(Candidate c) =>
         new(c.CandidateId, c.Name, c.Biography, AbsoluteUrl(c.PhotoUrl), c.Website, c.Email,
-            c.PositionId, c.Position.Name, c.MunicipalityId, c.Municipality.Name);
+            c.PositionId, c.Position.Name, c.Position.SeatsAvailable, c.MunicipalityId, c.Municipality.Name);
+
+    /// <summary>Requires each office's Municipality to be loaded.</summary>
+    public ElectionDto Map(Municipality m, IEnumerable<Position> offices, int candidateCount) =>
+        new(m.MunicipalityId, m.Name, m.Province, m.ElectionDate, m.Description, AbsoluteUrl(m.LogoUrl),
+            offices.Select(Map).ToList(), candidateCount);
 
     /// <summary>Requires the candidate graph described on <see cref="Map(Candidate)"/>.</summary>
     public SavedCandidateDto Map(SavedCandidate s) =>

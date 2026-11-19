@@ -20,7 +20,7 @@ namespace Mems.Api.Controllers;
 [Produces("application/json")]
 [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
 [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-public class SavedCandidatesController(ApiDbContext db, DtoMapper mapper, TimeProvider clock) : ControllerBase
+public class SavedCandidatesController(ApiDbContext db, DtoMapper mapper, MunicipalityScope scope, TimeProvider clock) : ControllerBase
 {
     private string UserId => User.FindFirst(JwtRegisteredClaimNames.Sub)?.Value
         ?? throw new InvalidOperationException("Authenticated token has no subject claim.");
@@ -30,11 +30,19 @@ public class SavedCandidatesController(ApiDbContext db, DtoMapper mapper, TimePr
         .Include(x => x.Candidate).ThenInclude(x => x.Municipality)
         .Where(x => x.UserId == UserId);
 
-    /// <summary>Lists the signed-in user's voting guide, newest first.</summary>
+    /// <summary>Lists the signed-in user's voting guide, newest first; ?city= or ?municipalityId= limits it to one municipality.</summary>
     [HttpGet]
-    public async Task<IEnumerable<SavedCandidateDto>> GetAll() =>
-        (await Mine().AsNoTracking().OrderByDescending(x => x.DateSaved).ThenByDescending(x => x.SavedCandidateId).ToListAsync())
-            .Select(mapper.Map);
+    [ProducesResponseType<IEnumerable<SavedCandidateDto>>(StatusCodes.Status200OK)]
+    [ProducesResponseType<MessageResponse>(StatusCodes.Status404NotFound)]
+    public async Task<ActionResult<IEnumerable<SavedCandidateDto>>> GetAll(string? city = null, int? municipalityId = null)
+    {
+        var (municipality, error) = await scope.ResolveAsync(city, municipalityId, required: false);
+        if (error is not null) return error;
+        var query = Mine().AsNoTracking();
+        if (municipality is not null) query = query.Where(x => x.Candidate.MunicipalityId == municipality.MunicipalityId);
+        var saved = await query.OrderByDescending(x => x.DateSaved).ThenByDescending(x => x.SavedCandidateId).ToListAsync();
+        return saved.Select(mapper.Map).ToList();
+    }
 
     [HttpGet("{id:int}")]
     [ProducesResponseType<SavedCandidateDto>(StatusCodes.Status200OK)]
@@ -43,7 +51,8 @@ public class SavedCandidatesController(ApiDbContext db, DtoMapper mapper, TimePr
         await Mine().AsNoTracking().SingleOrDefaultAsync(x => x.SavedCandidateId == id) is { } saved
             ? mapper.Map(saved) : NotFound(new MessageResponse("Saved candidate not found"));
 
-    /// <summary>Adds a candidate to the voting guide; returns 409 if it is already saved.</summary>
+    /// <summary>Adds a candidate to the voting guide. Returns 409 if it is already saved, or if the guide already
+    /// holds as many candidates for that office as it has seats (e.g. only one Mayor).</summary>
     [HttpPost]
     [ProducesResponseType<SavedCandidateDto>(StatusCodes.Status201Created)]
     [ProducesResponseType<MessageResponse>(StatusCodes.Status400BadRequest)]
@@ -51,10 +60,16 @@ public class SavedCandidatesController(ApiDbContext db, DtoMapper mapper, TimePr
     [ProducesResponseType<MessageResponse>(StatusCodes.Status409Conflict)]
     public async Task<ActionResult<SavedCandidateDto>> Save(SaveCandidateRequest request)
     {
-        if (!await db.Candidates.AnyAsync(x => x.CandidateId == request.CandidateId))
-            return NotFound(new MessageResponse("Candidate not found"));
+        var candidate = await db.Candidates.AsNoTracking().Include(x => x.Position).ThenInclude(x => x.Municipality)
+            .SingleOrDefaultAsync(x => x.CandidateId == request.CandidateId);
+        if (candidate is null) return NotFound(new MessageResponse("Candidate not found"));
         if (await db.SavedCandidates.AnyAsync(x => x.UserId == UserId && x.CandidateId == request.CandidateId))
             return Conflict(new MessageResponse("Candidate already in voting guide"));
+        // A voter may only choose as many candidates for an office as it has seats.
+        var seats = candidate.Position.SeatsAvailable;
+        if (await db.SavedCandidates.CountAsync(x => x.UserId == UserId && x.Candidate.PositionId == candidate.PositionId) >= seats)
+            return Conflict(new MessageResponse(
+                $"You can only choose {seats} {candidate.Position.Name}{(seats == 1 ? "" : " candidates")} in {candidate.Position.Municipality.Name}. Remove one before adding another."));
         var now = clock.GetUtcNow().UtcDateTime;
         // Whole seconds keep the timestamp compatible with Swift's default ISO 8601 decoding.
         var saved = new SavedCandidate {

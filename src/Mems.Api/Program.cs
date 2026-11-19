@@ -66,6 +66,7 @@ builder.Services.AddAuthorization();
 
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<DtoMapper>();
+builder.Services.AddScoped<MunicipalityScope>();
 builder.Services.AddControllers().ConfigureApiBehaviorOptions(options =>
     // Validation failures return { "message": "..." } rather than ProblemDetails.
     options.InvalidModelStateResponseFactory = context => new BadRequestObjectResult(new MessageResponse(string.Join(" ",
