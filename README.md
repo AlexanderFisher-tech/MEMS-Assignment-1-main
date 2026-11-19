@@ -19,7 +19,6 @@ COMP4977 Assignment 2. This is the backend for the **Municipal Elections Compani
 | `src/Mems.Api` | The Web API: controllers, EF Core model and migrations, seed data, candidate portraits and municipality logos (`wwwroot/images`) |
 | `tests/Mems.Api.Tests` | Integration tests for every endpoint |
 | `scripts/deploy-api-azure.sh` | One-command deployment of the API to Azure App Service with the Azure CLI |
-| `src/Mems.Web`, `tests/Mems.Tests` | The partner team's ASP.NET Core MVC administration site, which the API's data model and fictional candidates are based on. It is not part of the mobile backend. |
 
 ## Changes in Assignment 2
 

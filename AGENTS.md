@@ -4,7 +4,7 @@
 This repository holds the ASP.NET Core Web API backend for the COMP4977 iOS app (Municipal Elections Companion), Assignment 2.
 - **Tech Stack:** .NET 10, ASP.NET Core Web API, Entity Framework Core, SQLite, ASP.NET Core Identity, JWT Bearer Authentication.
 - **Architecture:** Stateless JSON REST API serving camelCase DTOs with absolute image URLs. The iOS app stores candidate selections in Firebase Firestore itself; the API has no Firebase code.
-- **Projects:** `src/Mems.Api` (the API) and `tests/Mems.Api.Tests`. `src/Mems.Web` and `tests/Mems.Tests` are the partner team's MVC site and are not part of the mobile backend.
+- **Projects:** `src/Mems.Api` (the API) and `tests/Mems.Api.Tests` (integration tests), both in `MEMS.sln`.
 
 ## Core Rules for Code Changes
 1. **Never break JWT or API endpoints:** All `/api/...` routes must remain fully functional.

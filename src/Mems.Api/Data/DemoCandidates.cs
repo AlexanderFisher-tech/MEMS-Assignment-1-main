@@ -2,7 +2,7 @@
  * Project: Municipal Elections Companion API (MEMS)
  * Course: COMP4977
  * Authors: Abdullah Rehan, Alex Fisher (project contributors)
- * Description: Fictional sample candidates reused from the COMP4976 MVC project, with packaged portraits.
+ * Description: Fictional sample candidates and their packaged portraits.
  */
 namespace Mems.Api.Data;
 
@@ -14,7 +14,7 @@ public record DemoCandidate(string Key, string Municipality, string Position, st
     public string Website => $"https://example.org/candidates/{Key}";
 }
 
-/// <summary>Original fictional content shared with the MVC site (src/Mems.Web/Data/DemoCandidates.cs).</summary>
+/// <summary>Original fictional content used to seed the database.</summary>
 public static class DemoCandidates
 {
     public static IReadOnlyList<DemoCandidate> All { get; } = Array.AsReadOnly(new[] {
