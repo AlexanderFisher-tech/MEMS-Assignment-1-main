@@ -36,3 +36,6 @@ node_modules/
 # Local agent-generated files
 /.codex/
 /.agents/
+
+# macOS Finder metadata
+.DS_Store

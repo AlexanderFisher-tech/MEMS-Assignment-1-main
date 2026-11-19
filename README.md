@@ -1,45 +1,45 @@
-# COMP4977 Assignments 1 & 2 — ASP.NET Core Web API
+# Municipal Elections Companion — ASP.NET Core Web API
 
-**Municipal Elections Companion API** — the backend for the SwiftUI app.
+COMP4977 Assignment 2. This is the backend for the **Municipal Elections Companion** SwiftUI app. It provides user registration and login with JWT, plus municipal election data (municipalities, offices and candidates) filtered by the user's chosen municipality.
 
 | Item | Value |
 | --- | --- |
 | Project | `src/Mems.Api` (ASP.NET Core Web API, .NET 10) |
-| Tests | `tests/Mems.Api.Tests` (xUnit integration tests, real HTTP pipeline + SQLite) |
-| Data | EF Core 10 Code-First, SQLite, ASP.NET Core Identity |
+| Tests | `tests/Mems.Api.Tests` (xUnit integration tests through the real HTTP pipeline, against SQLite) |
+| Data | Entity Framework Core 10 Code-First, SQLite, ASP.NET Core Identity |
 | Auth | JWT Bearer (HMAC-SHA256), 7-day tokens |
-| Docs UI | Swagger at `/swagger` (the site root `/` redirects there) |
-| Azure API URL | https://mems-api-afisher-ane9a7cmfpb9b9at.canadacentral-01.azurewebsites.net (Swagger: `/swagger`) |
-| GitHub repository | `https://github.com/AlexanderFisher-tech/MEMS-Assignment-1-main` |
+| Hosting | Azure App Service (Linux) |
+| Azure API URL | https://mems-api-afisher-ane9a7cmfpb9b9at.canadacentral-01.azurewebsites.net |
+| API explorer | Swagger UI at `/swagger` (the site root `/` redirects there) |
 
-### Why a separate project?
+## Repository layout
 
-The COMP4976 MVC site (`src/Mems.Web`) is my partner's project, already deployed to Azure from their own repository, and uses cookie auth, anti-forgery tokens and admin areas. Adding a stateless JWT API to it would have meant mixing two auth schemes and risking that deployment. `src/Mems.Api` is a clean, standalone Web API that **reuses** the MVC project's entity design, the 24 fictional candidates and biographies (`Data/DemoCandidates.cs`), and the candidate portraits (`wwwroot/images/demo-candidates`). It deploys as one App Service web app on its own and doesn't touch the MVC site.
+| Path | Contents |
+| --- | --- |
+| `src/Mems.Api` | The Web API: controllers, EF Core model and migrations, seed data, candidate portraits and municipality logos (`wwwroot/images`) |
+| `tests/Mems.Api.Tests` | Integration tests for every endpoint |
+| `scripts/deploy-api-azure.sh` | One-command deployment of the API to Azure App Service with the Azure CLI |
+| `src/Mems.Web`, `tests/Mems.Tests` | The partner team's ASP.NET Core MVC administration site, which the API's data model and fictional candidates are based on. It is not part of the mobile backend. |
 
-Differences from the MVC data, which follow the COMP4977 spec:
+## Changes in Assignment 2
 
-- "Councilor" is spelled **Councillor**.
-- Province is `BC`.
-- `Candidate.Profile` is renamed **`Biography`**.
-- Image file names become **`PhotoUrl` / `LogoUrl`**.
-- `Candidate` gets the spec's `MunicipalityId` column.
-- New PNG municipality logos are in `wwwroot/images/logos`. These are simple original crests, not official logos. They are PNG because SwiftUI's `AsyncImage` can't render SVG.
+- **Election data is filtered by municipality.** These endpoints now **require** the municipality:
+  - `GET /api/candidates`
+  - `/api/candidates/search`
+  - `/api/positions`
+  - `/api/offices`
+  - `/api/elections`
 
-### Assignment 2 changes (Web API)
-
-Assignment 2 keeps the same API, Azure app, login and JWT. The API changes are:
-
-- **Election data is scoped to one municipality.** `GET /api/candidates`, `/api/candidates/search`, `/api/positions` and the new `/api/offices` and `/api/elections` now **require** the municipality, given as `?city={name}` (case-insensitive, e.g. `?city=Burnaby`) or `?municipalityId={id}`.
-  - Without one, they return `400`. An unknown city returns `404`.
-  - They only ever return that municipality's records, so another city's data can't leak into the app.
-- **Single-item lookups can be scoped too.** `GET /api/candidates/{id}?city=Burnaby` and `/api/positions/{id}?city=Burnaby` return `404` when the record belongs to a different municipality.
-- **New `GET /api/offices?city=`.** This is the spec's name for positions; it returns the same data as `/api/positions`.
-- **New `GET /api/elections?city=`.** It returns one municipality's election: date, description, logo, its offices with seat counts, and the number of candidates.
-- **Candidates now include `seatsAvailable`.** This is how many candidates for that office a voter may choose, so the app can stop a user from selecting two mayors.
-- **Assignment 1 fix: seat limit in the voting guide.** `POST /api/savedcandidates` now refuses a selection beyond the office's seat count, e.g. a second mayor, with `409 {"message":"You can only choose 1 Mayor in Burnaby. Remove one before adding another."}`.
-- **The voting-guide list can be filtered by city.** `GET /api/savedcandidates?city=` returns only that municipality's entries.
-- **Firestore replaces the voting guide.** In Assignment 2 the app stores candidate selections in Firebase Firestore, and the user signs in to Firebase on the iOS side. The `/api/savedcandidates` endpoints remain available, but the app no longer uses them.
-- **`GET /api/municipalities` stays unfiltered.** The app needs the full list so the user can choose their city.
+  Give it as `?city={name}` (case-insensitive, e.g. `?city=Burnaby`) or `?municipalityId={id}`. These endpoints only ever return that municipality's records:
+  - Without a municipality, they return `400`.
+  - An unknown city returns `404`.
+- **Single-item lookups can be filtered too.** `GET /api/candidates/{id}?city=` and `/api/positions/{id}?city=` return `404` for a record that belongs to a different municipality.
+- **New endpoints.**
+  - `GET /api/offices?city=` is the same as `/api/positions`, under the name the specification uses.
+  - `GET /api/elections?city=` returns one municipality's election: its offices with seat counts, and the number of candidates.
+- **Candidates include `seatsAvailable`.** This is how many candidates for that office a voter may choose, so the app can enforce selection limits (only one mayor, for example).
+- **Seat limit on saved candidates (fix from Assignment 1).** `POST /api/savedcandidates` refuses a selection beyond the office's seat count with `409`. `GET /api/savedcandidates` accepts an optional `?city=`.
+- **Candidate selections are stored in Firebase Firestore** by the iOS app, which signs the user in to Firebase itself. The `/api/savedcandidates` endpoints remain available, but the app no longer uses them.
 
 ---
 
@@ -49,11 +49,18 @@ Assignment 2 keeps the same API, Azure app, login and JWT. The API changes are:
 flowchart TB
     subgraph iOS["iOS app (SwiftUI · MVVM)"]
         direction LR
-        V["Views<br/>Login · Register · Municipalities<br/>Directory · Details · Voting Guide · Profile"] --> VM["ViewModels<br/>async/await"] --> S["APIService<br/>URLSession · Codable"]
+        V["Views<br/>Login · Register · City selection · Directory<br/>Details · My Candidate Selections · Profile"] --> VM["ViewModels<br/>async/await"]
+        VM --> S["API service<br/>URLSession · Codable"]
+        VM --> FS["Firebase services<br/>Firebase Auth · Firestore SDK"]
         S <--> K[("Keychain<br/>JWT token")]
     end
 
-    S ==>|"HTTPS · JSON (camelCase) · Authorization: Bearer &lt;jwt&gt;"| P
+    S ==>|"HTTPS · JSON · Authorization: Bearer &lt;jwt&gt; · ?city="| P
+    FS ==>|"Firebase SDK (HTTPS)"| FB
+
+    subgraph Firebase["Firebase"]
+        FB[("Cloud Firestore<br/>user's municipality · candidate selections<br/>(security rules: own records only)")]
+    end
 
     subgraph Azure["Azure App Service · Linux · .NET 10"]
         direction TB
@@ -61,13 +68,14 @@ flowchart TB
         subgraph Controllers["Controllers (/api)"]
             direction LR
             AC["AuthController<br/>register · login"]
-            BC["Municipalities · Positions · Candidates<br/>public, read-only"]
-            SC["SavedCandidatesController<br/>voting guide (JWT required)"]
+            BC["Municipalities · Elections · Offices · Candidates<br/>public, filtered by municipality"]
+            SC["SavedCandidatesController<br/>JWT required"]
         end
         subgraph Services["Services"]
             direction LR
             ID["ASP.NET Core Identity<br/>UserManager · password hashing"]
             TS["TokenService<br/>signs JWTs"]
+            MS["MunicipalityScope<br/>resolves ?city= / ?municipalityId="]
             DM["DtoMapper<br/>flat DTOs · absolute image URLs"]
         end
         EF["Entity Framework Core · ApiDbContext<br/>auto-migrate + seed on startup"]
@@ -79,49 +87,51 @@ flowchart TB
         P --> SW
         AC --> ID
         AC --> TS
+        BC --> MS
         BC --> DM
+        SC --> MS
         SC --> DM
         ID --> EF
+        MS --> EF
         BC --> EF
         SC --> EF
         EF --> DB
     end
 ```
 
-### Login and voting-guide flow
+### Sign-in, municipality and selection flow
 
 ```mermaid
 sequenceDiagram
     participant App as iOS App
-    participant API as MEMS API
-    participant DB as SQLite
-    App->>API: POST /api/auth/register {name,email,password}
-    API->>DB: Identity creates AspNetUsers row (hashed password, Name)
-    API-->>App: 200 {"message":"Registration successful"}
-    App->>API: POST /api/auth/login {email,password}
-    API->>DB: verify password hash
+    participant API as MEMS Web API (Azure)
+    participant FB as Firebase (Auth + Firestore)
+    App->>API: POST /api/auth/login {email, password}
     API-->>App: 200 {token, name, email}
-    Note over App: store token in Keychain
-    App->>API: POST /api/savedcandidates {candidateId}<br/>Authorization: Bearer token
-    API->>API: validate signature, issuer, audience, expiry → userId = sub claim
-    API->>DB: INSERT SavedCandidates (UserId, CandidateId, DateSaved)
-    API-->>App: 201 {savedCandidateId, ..., candidate:{...}}
+    Note over App: store JWT in Keychain
+    App->>FB: sign in to Firebase (iOS SDK)
+    App->>FB: read the user's saved municipality
+    Note over App: first login: user picks a city from GET /api/municipalities and it is saved to Firestore
+    App->>API: GET /api/elections?city=Burnaby
+    App->>API: GET /api/candidates?city=Burnaby
+    API-->>App: Burnaby candidates only (with seatsAvailable)
+    App->>FB: create / update / delete a candidate selection (userEmail, city, candidate details, notes)
 ```
 
-### Request pipeline (Program.cs)
+### Request pipeline (`Program.cs`)
 
-1. **ForwardedHeaders** — App Service terminates TLS, so the app trusts `X-Forwarded-Proto`. That makes generated image URLs `https://…`, which iOS App Transport Security requires.
-2. **Exception handler** — returns `{ "message": "An unexpected server error occurred." }` with status 500.
-3. **Static files** — `/images/demo-candidates/*.jpg` and `/images/logos/*.png`.
+1. **ForwardedHeaders.** App Service terminates TLS, so the app trusts `X-Forwarded-Proto`. Generated image URLs are therefore `https://…`, as iOS App Transport Security requires.
+2. **Exception handler.** Unexpected errors return `{ "message": "An unexpected server error occurred." }` with status 500.
+3. **Static files:** `/images/demo-candidates/*.jpg` and `/images/logos/*.png`.
 4. **Swagger** and **Swagger UI**.
-5. **CORS** — `AllowAnyOrigin`, `AllowAnyMethod`, `AllowAnyHeader`.
+5. **CORS:** `AllowAnyOrigin`, `AllowAnyMethod`, `AllowAnyHeader`.
 6. **Authentication** (JWT Bearer) and **Authorization**.
-7. **Controllers**.
-8. **Startup**: `Database.MigrateAsync()` and then the idempotent seeder run before the first request. A brand-new App Service needs no manual `dotnet ef` commands.
+7. **Controllers.**
+8. **Startup.** `Database.MigrateAsync()` and the idempotent seeder run before the first request. A new App Service needs no manual database commands.
 
 ---
 
-## 2. Database ERD
+## 2. Database ERD (Web API, SQLite)
 
 ```mermaid
 erDiagram
@@ -171,34 +181,32 @@ erDiagram
     }
 ```
 
-The other Identity tables (`AspNetRoles`, `AspNetUserClaims`, `AspNetUserLogins`, `AspNetUserRoles`, `AspNetUserTokens`, `AspNetRoleClaims`) are created by `IdentityDbContext` but not used by the API.
+`IdentityDbContext` also creates `AspNetRoles`, `AspNetUserClaims`, `AspNetUserLogins`, `AspNetUserRoles`, `AspNetUserTokens` and `AspNetRoleClaims`, but the API doesn't use them.
 
 **Delete rules:**
+- **Restrict** on Municipality → Position → Candidate, so election data can't be deleted while other rows depend on it.
+- **Cascade** on User/Candidate → SavedCandidate.
 
-- Restrict on Municipality → Position → Candidate, so election data can't be deleted while other rows depend on it.
-- Cascade on User/Candidate → SavedCandidate, so voting-guide entries disappear with their user or candidate.
-
-**Seed data** (`Data/SeedData.cs`, runs only when the database is empty):
-
-- **4 municipalities:** Pitt Meadows, Maple Ridge, Burnaby, Surrey. Each has `Province = "BC"`, `ElectionDate = 2026-10-17`, and a PNG logo.
-- **12 positions:** each municipality has Mayor (1 seat), Councillor (6 seats) and School Trustee (2 seats).
-- **24 fictional candidates:** two per position. Each has an 80–150 word biography, a portrait, a website (`https://example.org/candidates/<key>`) and an email (`first.last@example.org`).
+**Seed data** (`Data/SeedData.cs`, inserted only when the database is empty):
+- **4 municipalities:** Pitt Meadows, Maple Ridge, Burnaby and Surrey. Each has `Province = "BC"`, `ElectionDate = 2026-10-17` and a PNG logo.
+- **12 offices:** each municipality has Mayor (1 seat), Councillor (6 seats) and School Trustee (2 seats).
+- **24 fictional candidates:** six per municipality, two per office. Each has a biography, a portrait, a website and an email.
 
 ---
 
 ## 3. API endpoints
 
-All responses are JSON in camelCase. Every error, including validation failures, has the shape `{ "message": "…" }`. Image URLs are absolute and built from the request: `{scheme}://{host}/images/...`. Set the `App__PublicBaseUrl` setting to force a particular host.
+All responses are camelCase JSON. Every error, validation failures included, has the shape `{ "message": "…" }`. Image URLs are absolute, built from the request as `{scheme}://{host}/images/...`. To force a particular host, set the `App__PublicBaseUrl` setting.
 
 | Method | Route | Auth | Success | Errors |
 | --- | --- | --- | --- | --- |
-| POST | `/api/auth/register` | public | 200 `{message}` | 400 `{message}` |
-| POST | `/api/auth/login` | public | 200 `{token,name,email}` | 400, 401 `{message}` |
-| GET | `/api/municipalities` | public | 200 `MunicipalityDto[]` | |
+| POST | `/api/auth/register` | public | 200 `{message}` | 400 |
+| POST | `/api/auth/login` | public | 200 `{token, name, email}` | 400, 401 |
+| GET | `/api/municipalities` | public | 200 `MunicipalityDto[]` (all, for choosing a city) | |
 | GET | `/api/municipalities/{id}` | public | 200 `MunicipalityDto` | 404 |
 | GET | `/api/elections?city={name}` | public | 200 `ElectionDto` | 400, 404 |
-| GET | `/api/positions?city={name}` (alias `/api/offices?city={name}`) | public | 200 `PositionDto[]` | 400, 404 |
-| GET | `/api/positions/{id}[?city=]` (alias `/api/offices/{id}`) | public | 200 `PositionDto` | 404 |
+| GET | `/api/offices?city={name}` (same as `/api/positions`) | public | 200 `PositionDto[]` | 400, 404 |
+| GET | `/api/offices/{id}[?city=]` (same as `/api/positions/{id}`) | public | 200 `PositionDto` | 404 |
 | GET | `/api/candidates?city={name}[&positionId=]` | public | 200 `CandidateDto[]` | 400, 404 |
 | GET | `/api/candidates/{id}[?city=]` | public | 200 `CandidateDto` | 404 |
 | GET | `/api/candidates/search?city={name}&name={q}[&positionId=]` | public | 200 `CandidateDto[]` | 400, 404 |
@@ -209,19 +217,16 @@ All responses are JSON in camelCase. Every error, including validation failures,
 
 Notes:
 
-- **Municipality scoping:** wherever `city` appears, `municipalityId={id}` works instead.
-  - On the lists and on `/api/elections` the municipality is **required**: without one you get `400 {"message":"Specify a municipality with ?city={name} (for example ?city=Burnaby) or ?municipalityId={id}."}`.
-  - An unknown city returns `404 {"message":"Municipality 'X' not found"}`.
-  - On the `{id}` lookups it is optional. When given, a record from another municipality returns `404`.
-- `search` does a case-insensitive partial match on the candidate name, within the chosen municipality. If `name` is missing or empty, it returns all of that municipality's candidates.
-- `positionId` is an optional extra filter for the iOS directory screen.
-- `POST /api/savedcandidates` returns `409` when the candidate is already saved, or when the user already has as many candidates for that office as it has seats.
-- `DELETE /api/savedcandidates/{id}` first looks for one of the user's entries whose **SavedCandidateId** is `id`. If there isn't one, it looks for an entry whose **CandidateId** is `id`. That way the app can remove an entry using either ID.
-- The saved-candidate endpoints only ever read or change the signed-in user's entries. The user ID comes from the token's `sub` claim.
+- **Municipality filtering.** Wherever `city` appears, `municipalityId={id}` works instead.
+  - On the lists and on `/api/elections`, the municipality is required.
+  - On the `{id}` lookups it's optional. When it's given, a record from another municipality returns `404`.
+- **Search** does a case-insensitive partial match on the candidate name, within the chosen municipality. If `name` is missing or empty, it returns all of that municipality's candidates.
+- **`positionId`** optionally narrows a candidate list to one office.
+- **Saving a candidate.** `POST /api/savedcandidates` returns `409` if the candidate is already saved, or if the user already holds as many candidates for that office as it has seats.
+- **Deleting a saved candidate.** `DELETE /api/savedcandidates/{id}` matches the user's entry by `SavedCandidateId`. If none matches, it falls back to matching by `CandidateId`.
+- **Saved-candidate endpoints** only ever read or change the signed-in user's entries. The user is identified by the token's `sub` claim.
 
 ### Sample requests and responses
-
-These were captured from a local run. On Azure, the host part of the URLs becomes `https://<app>.azurewebsites.net`.
 
 **`POST /api/auth/register`**
 
@@ -247,9 +252,16 @@ These were captured from a local run. On Azure, the host part of the URLs become
 { "message": "Invalid email or password" }
 ```
 
-The token's claims are `sub` (user ID), `email`, `name`, `jti`, `iss` (`MemsApi`), `aud` (`MemsIosApp`) and `exp` (7 days after login).
+The token's claims are:
+- `sub`: user ID
+- `email`
+- `name`
+- `jti`
+- `iss`: `MemsApi`
+- `aud`: `MemsIosApp`
+- `exp`: 7 days after login
 
-**`GET /api/municipalities`** (single item shown)
+**`GET /api/municipalities`** (one item shown)
 
 ```json
 [
@@ -258,8 +270,8 @@ The token's claims are `sub` (user ID), `email`, `name`, `jti`, `iss` (`MemsApi`
     "name": "Burnaby",
     "province": "BC",
     "electionDate": "2026-10-17T00:00:00",
-    "description": "A large, diverse city at the centre of Metro Vancouver with busy town centres, parks, and post-secondary campuses. Sample election data for a student application.",
-    "logoUrl": "https://localhost:5090/images/logos/burnaby.png"
+    "description": "A large, diverse city at the centre of Metro Vancouver …",
+    "logoUrl": "https://<host>/images/logos/burnaby.png"
   }
 ]
 ```
@@ -270,7 +282,7 @@ The token's claims are `sub` (user ID), `email`, `name`, `jti`, `iss` (`MemsApi`
 {
   "municipalityId": 1, "municipalityName": "Pitt Meadows", "province": "BC",
   "electionDate": "2026-10-17T00:00:00", "description": "A rural-urban community on the Fraser and Pitt rivers …",
-  "logoUrl": "https://localhost:5090/images/logos/pitt-meadows.png",
+  "logoUrl": "https://<host>/images/logos/pitt-meadows.png",
   "offices": [
     { "positionId": 1, "name": "Mayor", "seatsAvailable": 1, "municipalityId": 1, "municipalityName": "Pitt Meadows" },
     { "positionId": 2, "name": "Councillor", "seatsAvailable": 6, "municipalityId": 1, "municipalityName": "Pitt Meadows" },
@@ -280,40 +292,38 @@ The token's claims are `sub` (user ID), `email`, `name`, `jti`, `iss` (`MemsApi`
 }
 ```
 
-**`GET /api/candidates`** (no municipality)
+**`GET /api/candidates?city=Pitt%20Meadows`** (one item shown)
 
 ```json
-// 400
+[
+  {
+    "candidateId": 1,
+    "name": "Mara Ellison",
+    "biography": "Mara Ellison is a fictional community planning consultant …",
+    "photoUrl": "https://<host>/images/demo-candidates/demo-mara-ellison.jpg",
+    "website": "https://example.org/candidates/mara-ellison",
+    "email": "mara.ellison@example.org",
+    "positionId": 1,
+    "positionName": "Mayor",
+    "seatsAvailable": 1,
+    "municipalityId": 1,
+    "municipalityName": "Pitt Meadows"
+  }
+]
+```
+
+**`GET /api/candidates/search?city=Burnaby&name=AN`** returns `Adrian Solano`, `Vivian Kessler` and `Mei Tanaka`. Matches from other municipalities aren't included.
+
+**Missing or unknown municipality**
+
+```json
+// GET /api/candidates → 400
 { "message": "Specify a municipality with ?city={name} (for example ?city=Burnaby) or ?municipalityId={id}." }
+// GET /api/candidates?city=Atlantis → 404
+{ "message": "Municipality 'Atlantis' not found" }
+// GET /api/candidates/1?city=Burnaby → 404 (candidate 1 is in Pitt Meadows)
+{ "message": "Candidate not found in Burnaby" }
 ```
-
-**`GET /api/positions/2`**
-
-```json
-{ "positionId": 2, "name": "Councillor", "seatsAvailable": 6, "municipalityId": 1, "municipalityName": "Pitt Meadows" }
-```
-
-**`GET /api/candidates/1`**
-
-```json
-{
-  "candidateId": 1,
-  "name": "Mara Ellison",
-  "biography": "Mara Ellison is a fictional community planning consultant who has spent her imagined career …",
-  "photoUrl": "https://localhost:5090/images/demo-candidates/demo-mara-ellison.jpg",
-  "website": "https://example.org/candidates/mara-ellison",
-  "email": "mara.ellison@example.org",
-  "positionId": 1,
-  "positionName": "Mayor",
-  "seatsAvailable": 1,
-  "municipalityId": 1,
-  "municipalityName": "Pitt Meadows"
-}
-```
-
-**`GET /api/candidates/search?city=Burnaby&name=AN`** returns an array of `CandidateDto`:
-
-`Adrian Solano, Vivian Kessler, Mei Tanaka`
 
 **`POST /api/savedcandidates`** (header `Authorization: Bearer <token>`)
 
@@ -325,25 +335,14 @@ The token's claims are `sub` (user ID), `email`, `name`, `jti`, `iss` (`MemsApi`
   "savedCandidateId": 1,
   "userId": "6acded42-d8a2-4e18-bb30-2f499dee5df6",
   "candidateId": 1,
-  "dateSaved": "2026-10-24T07:04:56Z",
-  "candidate": {
-    "candidateId": 1, "name": "Mara Ellison", "biography": "…",
-    "photoUrl": "https://localhost:5090/images/demo-candidates/demo-mara-ellison.jpg",
-    "website": "https://example.org/candidates/mara-ellison", "email": "mara.ellison@example.org",
-    "positionId": 1, "positionName": "Mayor", "seatsAvailable": 1, "municipalityId": 1, "municipalityName": "Pitt Meadows"
-  }
+  "dateSaved": "2026-11-19T19:04:56Z",
+  "candidate": { "candidateId": 1, "name": "Mara Ellison", "…": "full CandidateDto" }
 }
 // 409 (already saved)
 { "message": "Candidate already in voting guide" }
 // 409 (office full, e.g. a second mayor)
 { "message": "You can only choose 1 Mayor in Pitt Meadows. Remove one before adding another." }
-// 404 (no such candidate)
-{ "message": "Candidate not found" }
 ```
-
-**`GET /api/savedcandidates`** returns an array of the objects above, newest first.
-
-**`DELETE /api/savedcandidates/{id}`** returns `204 No Content`, or `404 {"message":"Saved candidate not found"}`.
 
 **Any 🔒 endpoint called without a valid token**
 
@@ -353,21 +352,38 @@ WWW-Authenticate: Bearer
 { "message": "Authentication required. Send a valid bearer token." }
 ```
 
-### Notes for the SwiftUI client (Part 2)
+### Notes for the SwiftUI client
 
-- Send `Authorization: Bearer \(token)` and `Content-Type: application/json` on protected calls.
-- `dateSaved` is ISO 8601 UTC with whole seconds (`2026-10-24T07:04:56Z`), so `.iso8601` decodes it. `electionDate` follows the spec format `2026-10-17T00:00:00`, which has no time zone. Use a decoding strategy that accepts both formats:
+- **Send the user's municipality** as `?city=` on every elections, offices, candidate and search request.
+- **Protected calls** need the headers `Authorization: Bearer \(token)` and `Content-Type: application/json`.
+- **Enforce seat limits** using each candidate's `seatsAvailable`. The app saves selections to Firestore, so check the user's existing selections for that office and municipality before adding another.
+- **`electionDate` has no time zone** (`2026-10-17T00:00:00`), so Swift's `.iso8601` strategy rejects it. Decode it with a formatter like this:
   ```swift
-  decoder.dateDecodingStrategy = .custom { d in
-      let s = try d.singleValueContainer().decode(String.self)
-      if let date = ISO8601DateFormatter().date(from: s) { return date }
-      let f = DateFormatter(); f.locale = Locale(identifier: "en_US_POSIX"); f.dateFormat = "yyyy-MM-dd'T'HH:mm:ss"
-      if let date = f.date(from: s) { return date }
-      throw DecodingError.dataCorruptedError(in: try d.singleValueContainer(), debugDescription: "Bad date \(s)")
-  }
+  let f = DateFormatter(); f.locale = Locale(identifier: "en_US_POSIX"); f.dateFormat = "yyyy-MM-dd'T'HH:mm:ss"
+  decoder.dateDecodingStrategy = .formatted(f)
   ```
-- `photoUrl` and `logoUrl` are absolute `https` URLs on Azure, so `AsyncImage(url: URL(string: c.photoUrl ?? ""))` works directly.
-- Treat any non-2xx response as an error and show the `message` field to the user.
-- For the simulator against a local API, use `http://localhost:5080` and add an ATS exception for `localhost`. The deployed Azure URL is HTTPS-only.
+- **Image URLs** (`photoUrl`, `logoUrl`) are absolute `https` URLs on Azure, so `AsyncImage(url: URL(string: c.photoUrl ?? ""))` works directly.
+- **Errors:** treat any non-2xx response as an error and show its `message` field to the user.
 
 ---
+
+## 4. Configuration and deployment
+
+| Setting | Default | Purpose |
+| --- | --- | --- |
+| `Jwt__Key` | development key in `appsettings.json` (32 bytes or more) | HMAC signing key. Azure uses its own random key, stored as an app setting. |
+| `Jwt__Issuer` / `Jwt__Audience` | `MemsApi` / `MemsIosApp` | token validation |
+| `Jwt__ExpiryMinutes` | `10080` (7 days) | token lifetime |
+| `Storage__Root` | `App_Data` locally, `$HOME/data/mems-api` on App Service | folder that holds the SQLite file |
+| `App__PublicBaseUrl` | (request host) | forces the host used in image URLs |
+
+The API is deployed by uploading a Release build (zip) from Azure Cloud Shell:
+
+```bash
+dotnet publish src/Mems.Api/Mems.Api.csproj -c Release -o artifacts/api-publish
+(cd artifacts/api-publish && zip -r ../mems-api.zip .)
+# Azure Cloud Shell, after uploading mems-api.zip:
+az webapp deploy -n mems-api-afisher -g mems-api-afisher_group --src-path ~/mems-api.zip --type zip
+```
+
+`scripts/deploy-api-azure.sh <app-name>` does the same in one command from a machine signed in with the Azure CLI. The database lives under `/home/data`, which App Service keeps across restarts and redeployments.
