@@ -18,7 +18,7 @@ public static class SeedData
         ("Surrey", "surrey", "One of British Columbia's fastest-growing cities, with many distinct town centres and neighbourhoods. Sample election data for a student application."),
     ];
 
-    private static readonly (string Name, int Seats)[] Positions = [("Mayor", 1), ("Councillor", 6), ("School Trustee", 2)];
+    private static readonly (string Name, int Seats)[] Positions = [("Mayor", 1), ("Councillor", 5), ("School Trustee", 2)];
 
     /// <summary>Creates or upgrades the SQLite schema, then seeds municipalities, positions, and candidates when the database is empty.</summary>
     public static async Task InitializeAsync(IServiceProvider services)
