@@ -188,7 +188,7 @@ erDiagram
 
 **Seed data** (`Data/SeedData.cs`, inserted only when the database is empty):
 - **4 municipalities:** Pitt Meadows, Maple Ridge, Burnaby and Surrey. Each has `Province = "BC"`, `ElectionDate = 2026-10-17` and a PNG logo.
-- **12 offices:** each municipality has Mayor (1 seat), Councillor (6 seats) and School Trustee (2 seats).
+- **12 offices:** each municipality has Mayor (1 seat), Councillor (5 seats) and School Trustee (2 seats).
 - **24 fictional candidates:** six per municipality, two per office. Each has a biography, a portrait, a website and an email.
 
 ---
@@ -284,7 +284,7 @@ The token's claims are:
   "logoUrl": "https://<host>/images/logos/pitt-meadows.png",
   "offices": [
     { "positionId": 1, "name": "Mayor", "seatsAvailable": 1, "municipalityId": 1, "municipalityName": "Pitt Meadows" },
-    { "positionId": 2, "name": "Councillor", "seatsAvailable": 6, "municipalityId": 1, "municipalityName": "Pitt Meadows" },
+    { "positionId": 2, "name": "Councillor", "seatsAvailable": 5, "municipalityId": 1, "municipalityName": "Pitt Meadows" },
     { "positionId": 3, "name": "School Trustee", "seatsAvailable": 2, "municipalityId": 1, "municipalityName": "Pitt Meadows" }
   ],
   "candidateCount": 6

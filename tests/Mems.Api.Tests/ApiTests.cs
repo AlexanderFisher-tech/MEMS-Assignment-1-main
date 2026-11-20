@@ -197,7 +197,7 @@ public class ApiTests(ApiFactory factory) : IClassFixture<ApiFactory>
         Assert.Equal("2026-10-17T00:00:00", body.GetProperty("electionDate").GetString());
         Assert.Equal(6, body.GetProperty("candidateCount").GetInt32());
         var offices = body.GetProperty("offices").EnumerateArray().ToList();
-        Assert.Equal(new[] { 1, 6, 2 }, offices.Select(x => x.GetProperty("seatsAvailable").GetInt32()));
+        Assert.Equal(new[] { 1, 5, 2 }, offices.Select(x => x.GetProperty("seatsAvailable").GetInt32()));
         Assert.All(offices, x => Assert.Equal("Pitt Meadows", x.GetProperty("municipalityName").GetString()));
     }
 
